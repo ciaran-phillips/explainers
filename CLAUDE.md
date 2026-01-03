@@ -4,12 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project: Housing Need
 
-This repository is currently being initialized. Once code is added, this file should be updated with:
+This is an [Observable Framework](https://observablehq.com/framework/) project, used to visualise and explore the amount of housing needed in Ireland in the coming years.
 
-1. **Build and Development Commands**: How to build, test, lint, and run the project
-2. **Architecture Overview**: High-level structure and key architectural decisions
-3. **Project-Specific Conventions**: Any coding standards or patterns specific to this codebase
+## Build and Development Commands
 
-## Current Status
+| Command              | Description                              |
+| -------------------- | ---------------------------------------- |
+| `npm install`        | Install or reinstall dependencies        |
+| `npm run dev`        | Start local preview server (port 3000)   |
+| `npm run build`      | Build static site, generating `./dist`   |
+| `npm run deploy`     | Deploy app to Observable                 |
+| `npm run clean`      | Clear the local data loader cache        |
 
-This is a fresh repository. As the codebase develops, update this file to help future instances of Claude Code work more effectively.
+## Project Structure
+
+- **`src/`** - Source root with Markdown pages (file-based routing)
+- **`src/index.md`** - Home page
+- **`src/data/`** - Data loaders and static data files
+- **`src/components/`** - Shared JavaScript modules
+- **`observablehq.config.js`** - App configuration (sidebar nav, title, etc.)
