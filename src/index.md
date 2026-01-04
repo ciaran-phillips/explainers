@@ -2,110 +2,302 @@
 toc: false
 ---
 
-<div class="hero">
-  <h1>Vis</h1>
-  <h2>Welcome to your new app! Edit&nbsp;<code style="font-size: 90%;">src/index.md</code> to change this page.</h2>
-  <a href="https://observablehq.com/framework/getting-started">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
+# Housing Demand Calculator
+
+An interactive tool to explore Ireland's projected housing demand based on the ESRI model from "Population Projections, The Flow of New Households and Structural Housing Demand" (RS190, July 2024).
+
+```js
+// Import calculation functions
+import {
+  generateScenarioTimeSeries,
+  generateAllScenarios,
+  getScenarioRange
+} from "./components/calculations.js";
+
+// Import React components
+import { DemandChart } from "./components/DemandChart.jsx";
+import { SummaryStats } from "./components/SummaryStats.jsx";
+import { ComparisonTable } from "./components/ComparisonTable.jsx";
+import { BreakdownChart } from "./components/BreakdownChart.jsx";
+```
+
+```js
+// Load data
+const scenarios = await FileAttachment("data/scenarios.json").json();
+const populationProjections = await FileAttachment("data/population-projections.json").json();
+const headshipRates = await FileAttachment("data/headship-rates.json").json();
+```
+
+```js
+// Pre-calculate all 12 scenarios
+const allScenarios = generateAllScenarios(
+  populationProjections,
+  headshipRates,
+  scenarios.obsolescenceScenarios,
+  scenarios.housingStock[2022]
+);
+
+const scenarioRange = getScenarioRange(allScenarios);
+```
+
+<div class="grid grid-cols-4">
+  <div class="card grid-colspan-1">
+    <h3>Scenario Selection</h3>
+
+```js
+// Migration scenario input
+const migrationOptions = Object.entries(scenarios.populationScenarios).map(([key, value]) => ({
+  value: key,
+  label: value.label
+}));
+const migrationInput = view(Inputs.radio(migrationOptions, {
+  label: "Migration",
+  value: "baseline",
+  format: d => d.label
+}));
+```
+
+```js
+// Headship scenario input
+const headshipOptions = Object.entries(scenarios.headshipScenarios).map(([key, value]) => ({
+  value: key,
+  label: value.label
+}));
+const headshipInput = view(Inputs.radio(headshipOptions, {
+  label: "Household Formation",
+  value: "current",
+  format: d => d.label
+}));
+```
+
+```js
+// Obsolescence rate input
+const obsolescenceOptions = Object.entries(scenarios.obsolescenceScenarios).map(([key, value]) => ({
+  value: key,
+  label: value.label
+}));
+const obsolescenceInput = view(Inputs.radio(obsolescenceOptions, {
+  label: "Obsolescence Rate",
+  value: "low",
+  format: d => d.label
+}));
+```
+
+  </div>
+  <div class="card grid-colspan-3">
+
+```js
+// Generate selected scenario time series
+const selectedTimeSeries = generateScenarioTimeSeries(
+  populationProjections[migrationInput.value].data,
+  headshipRates[headshipInput.value].data,
+  scenarios.obsolescenceScenarios[obsolescenceInput.value].rate,
+  scenarios.housingStock[2022]
+);
+```
+
+```js
+resize((width) => display(<DemandChart
+  selectedScenario={selectedTimeSeries}
+  scenarioRange={scenarioRange}
+  width={width}
+/>))
+```
+
+  </div>
 </div>
 
-<div class="grid grid-cols-2" style="grid-auto-rows: 504px;">
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "Your awesomeness over time 🚀",
-      subtitle: "Up and to the right!",
-      width,
-      y: {grid: true, label: "Awesomeness"},
-      marks: [
-        Plot.ruleY([0]),
-        Plot.lineY(aapl, {x: "Date", y: "Close", tip: true})
-      ]
-    }))
-  }</div>
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "How big are penguins, anyway? 🐧",
-      width,
-      grid: true,
-      x: {label: "Body mass (g)"},
-      y: {label: "Flipper length (mm)"},
-      color: {legend: true},
-      marks: [
-        Plot.linearRegressionY(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species"}),
-        Plot.dot(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species", tip: true})
-      ]
-    }))
-  }</div>
+<div class="grid grid-cols-2">
+  <div class="card">
+
+```js
+display(<SummaryStats
+  selectedScenario={selectedTimeSeries}
+  allScenarios={allScenarios}
+/>)
+```
+
+  </div>
+  <div class="card">
+
+```js
+display(<ComparisonTable
+  selectedScenario={selectedTimeSeries}
+  allScenarios={allScenarios}
+/>)
+```
+
+  </div>
+</div>
+
+<div class="card">
+  <h3>Demand Breakdown by Component</h3>
+
+```js
+resize((width) => display(<BreakdownChart
+  selectedScenario={selectedTimeSeries}
+  width={width}
+/>))
+```
+
 </div>
 
 ---
 
-## Next steps
+## Understanding the Model
 
-Here are some ideas of things you could try…
+<div class="grid grid-cols-2">
+  <div class="note">
+    <h4>What This Shows</h4>
+    <p>This calculator shows <strong>structural housing demand</strong> - the number of new dwellings needed each year based on:</p>
+    <ul>
+      <li><strong>Population growth</strong> - people need places to live</li>
+      <li><strong>Household formation</strong> - changing household sizes</li>
+      <li><strong>Replacing obsolete housing</strong> - wear and tear</li>
+    </ul>
+    <p><strong>Note:</strong> This does NOT include pent-up demand from existing housing shortages. The actual need may be higher.</p>
+  </div>
+  <div class="note">
+    <h4>Understanding the Range</h4>
+    <p>The wide range across scenarios isn't measurement error - it reflects genuine uncertainty about:</p>
+    <ul>
+      <li>How many people will move to Ireland</li>
+      <li>How fast household sizes will fall</li>
+      <li>How quickly housing stock will deteriorate</li>
+    </ul>
+    <p>Different assumptions lead to very different futures.</p>
+  </div>
+</div>
 
-<div class="grid grid-cols-4">
-  <div class="card">
-    Chart your own data using <a href="https://observablehq.com/framework/lib/plot"><code>Plot</code></a> and <a href="https://observablehq.com/framework/files"><code>FileAttachment</code></a>. Make it responsive using <a href="https://observablehq.com/framework/javascript#resize(render)"><code>resize</code></a>.
-  </div>
-  <div class="card">
-    Create a <a href="https://observablehq.com/framework/project-structure">new page</a> by adding a Markdown file (<code>whatever.md</code>) to the <code>src</code> folder.
-  </div>
-  <div class="card">
-    Add a drop-down menu using <a href="https://observablehq.com/framework/inputs/select"><code>Inputs.select</code></a> and use it to filter the data shown in a chart.
-  </div>
-  <div class="card">
-    Write a <a href="https://observablehq.com/framework/loaders">data loader</a> that queries a local database or API, generating a data snapshot on build.
-  </div>
-  <div class="card">
-    Import a <a href="https://observablehq.com/framework/imports">recommended library</a> from npm, such as <a href="https://observablehq.com/framework/lib/leaflet">Leaflet</a>, <a href="https://observablehq.com/framework/lib/dot">GraphViz</a>, <a href="https://observablehq.com/framework/lib/tex">TeX</a>, or <a href="https://observablehq.com/framework/lib/duckdb">DuckDB</a>.
-  </div>
-  <div class="card">
-    Ask for help, or share your work or ideas, on our <a href="https://github.com/observablehq/framework/discussions">GitHub discussions</a>.
-  </div>
-  <div class="card">
-    Visit <a href="https://github.com/observablehq/framework">Framework on GitHub</a> and give us a star. Or file an issue if you’ve found a bug!
-  </div>
+---
+
+<div class="source-info">
+  <p>Source: ESRI Research Series RS190, "Population Projections, The Flow of New Households and Structural Housing Demand", July 2024.</p>
+  <p>Formula: Annual Housing Demand = New Households Formation + Replacement Stock</p>
 </div>
 
 <style>
 
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: var(--sans-serif);
-  margin: 4rem 0 8rem;
-  text-wrap: balance;
-  text-align: center;
+.note {
+  background: var(--theme-background-alt);
+  border-left: 4px solid var(--theme-foreground-focus);
+  padding: 1rem 1.5rem;
+  border-radius: 0 8px 8px 0;
 }
 
-.hero h1 {
-  margin: 1rem 0;
-  padding: 1rem 0;
-  max-width: none;
-  font-size: 14vw;
-  font-weight: 900;
-  line-height: 1;
-  background: linear-gradient(30deg, var(--theme-foreground-focus), currentColor);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.note h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
 }
 
-.hero h2 {
-  margin: 0;
-  max-width: 34em;
-  font-size: 20px;
-  font-style: initial;
-  font-weight: 500;
+.note p, .note ul {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
   line-height: 1.5;
+}
+
+.note ul {
+  padding-left: 1.25rem;
+}
+
+.source-info {
+  font-size: 0.875rem;
   color: var(--theme-foreground-muted);
 }
 
-@media (min-width: 640px) {
-  .hero h1 {
-    font-size: 90px;
-  }
+/* Summary Stats */
+.summary-stats h3 {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--theme-foreground-muted);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+
+.stat-label {
+  color: var(--theme-foreground-muted);
+}
+
+.stat-value {
+  font-weight: 600;
+}
+
+.stat-range {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.range-header {
+  font-size: 0.875rem;
+  color: var(--theme-foreground-muted);
+  margin-bottom: 0.5rem;
+}
+
+.range-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+}
+
+/* Comparison Table */
+.comparison-table-wrapper {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.comparison-table th {
+  padding: 0.75rem 1rem;
+  text-align: right;
+  font-weight: 600;
+  color: var(--theme-foreground-muted);
+  border-bottom: 2px solid var(--theme-foreground-faintest);
+}
+
+.comparison-table th:first-child {
+  text-align: left;
+}
+
+.comparison-table .subheader {
+  font-weight: normal;
+  font-size: 0.75rem;
+}
+
+.comparison-table td {
+  padding: 0.75rem 1rem;
+  text-align: right;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+
+.comparison-table .label-cell {
+  text-align: left;
+  font-weight: 500;
+}
+
+.comparison-table .selected-row {
+  background: var(--theme-foreground-focus);
+  background-opacity: 0.1;
+}
+
+.comparison-table .selected-row td {
+  color: var(--theme-foreground-focus);
+  font-weight: 600;
+}
+
+.comparison-table .avg-row {
+  background: var(--theme-background-alt);
 }
 
 </style>
