@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from "npm:react";
 import * as Plot from "npm:@observablehq/plot";
 
 // Convert raw demand (in thousands) to units

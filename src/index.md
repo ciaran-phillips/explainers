@@ -15,10 +15,10 @@ import {
 } from "./components/calculations.js";
 
 // Import React components
-import { DemandChart } from "./components/DemandChart.jsx";
-import { SummaryStats } from "./components/SummaryStats.jsx";
-import { ComparisonTable } from "./components/ComparisonTable.jsx";
-import { BreakdownChart } from "./components/BreakdownChart.jsx";
+import { DemandChart } from "./components/DemandChart.js";
+import { SummaryStats } from "./components/SummaryStats.js";
+import { ComparisonTable } from "./components/ComparisonTable.js";
+import { BreakdownChart } from "./components/BreakdownChart.js";
 ```
 
 ```js
@@ -96,12 +96,12 @@ const selectedTimeSeries = generateScenarioTimeSeries(
 );
 ```
 
-```js
-resize((width) => display(<DemandChart
+```jsx
+display(<DemandChart
   selectedScenario={selectedTimeSeries}
   scenarioRange={scenarioRange}
   width={width}
-/>))
+/>)
 ```
 
   </div>
@@ -110,7 +110,7 @@ resize((width) => display(<DemandChart
 <div class="grid grid-cols-2">
   <div class="card">
 
-```js
+```jsx
 display(<SummaryStats
   selectedScenario={selectedTimeSeries}
   allScenarios={allScenarios}
@@ -120,7 +120,7 @@ display(<SummaryStats
   </div>
   <div class="card">
 
-```js
+```jsx
 display(<ComparisonTable
   selectedScenario={selectedTimeSeries}
   allScenarios={allScenarios}
@@ -133,7 +133,7 @@ display(<ComparisonTable
 <div class="card">
   <h3>Demand Breakdown by Component</h3>
 
-```js
+```jsx
 resize((width) => display(<BreakdownChart
   selectedScenario={selectedTimeSeries}
   width={width}

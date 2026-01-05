@@ -4,7 +4,12 @@
       "Bash(npm install)",
       "Bash(node scripts/validate-calculations.js:*)",
       "Bash(curl:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(cat:*)",
+      "Bash(lsof:*)",
+      "Bash(node src/data/population-by-cohort.json.js:*)",
+      "Bash(npm run clean:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }
