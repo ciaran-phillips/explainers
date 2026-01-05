@@ -75,10 +75,10 @@ process.stdout.write(JSON.stringify(data));
 ```
 
 ### JSX Components
-React components are defined in files using the `.jsx` extension, but are imported with the `.js` extension in markdown:
-```js
+React components are defined in files using the `.jsx` extension, but are imported with the `.js` extension in markdown. This is because they are automatically transpiled to .js at build time, and these imports are executed at runtime Remember that to use jsx in markdown you also need to use a jsx code block rather than a js block. Example:
+
+```jsx
 import { MyComponent } from "./components/MyComponent.jsx";
 display(<MyComponent prop={value} />)
 ```
 
-This is because they are automatically transpiled to .js at build time, and these imports are executed at runtime
