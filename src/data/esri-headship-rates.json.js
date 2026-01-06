@@ -2,7 +2,7 @@
 // Generates annual headship rates for each scenario (2022-2040) using linear interpolation
 
 import { readFileSync } from "fs";
-const scenarios = JSON.parse(readFileSync("src/data/scenarios.json", "utf-8"));
+const scenarios = JSON.parse(readFileSync("src/data/esri-scenarios.json", "utf-8"));
 
 function interpolate(data) {
   const years = Object.keys(data).map(Number).sort((a, b) => a - b);

@@ -26,8 +26,8 @@ import { ScenarioComparisonTable } from "./components/ScenarioComparisonTable.js
 
 ```js
 // Load data
-const populationByCohort = await FileAttachment("data/population-by-cohort.json").json();
-const headshipRates = await FileAttachment("data/headship-rates-by-cohort.json").json();
+const populationByCohort = await FileAttachment("data/cb-population-by-cohort.json").json();
+const headshipRates = await FileAttachment("data/cb-headship-rates-by-cohort.json").json();
 ```
 
 ```js

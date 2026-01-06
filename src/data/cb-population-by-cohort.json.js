@@ -4,7 +4,7 @@
 
 import { readFileSync } from "fs";
 
-const csv = readFileSync("src/data/population_by_cohort.csv", "utf-8");
+const csv = readFileSync("src/data/cb-population-by-cohort.csv", "utf-8");
 const lines = csv.trim().split("\n");
 const headers = lines[0].split(",");
 

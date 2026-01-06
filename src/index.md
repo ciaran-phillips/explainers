@@ -23,9 +23,9 @@ import { BreakdownChart } from "./components/BreakdownChart.js";
 
 ```js
 // Load data
-const scenarios = await FileAttachment("data/scenarios.json").json();
-const populationProjections = await FileAttachment("data/population-projections.json").json();
-const headshipRates = await FileAttachment("data/headship-rates.json").json();
+const scenarios = await FileAttachment("data/esri-scenarios.json").json();
+const populationProjections = await FileAttachment("data/esri-population-projections.json").json();
+const headshipRates = await FileAttachment("data/esri-headship-rates.json").json();
 ```
 
 ```js
