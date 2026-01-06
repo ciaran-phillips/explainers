@@ -9,14 +9,14 @@ import {
   parseScenario,
   aggregateByCohort,
   filterHouseholdCohorts,
-  HOUSEHOLD_COHORTS
+  type ParsedRow
 } from "./cb-population-transforms.js";
 
 const csv = readFileSync("src/data/cb-population-projections-all-years.csv", "utf-8");
 const lines = csv.trim().split("\n");
 
 // Parse CSV rows (skip header)
-const parsedRows = [];
+const parsedRows: (ParsedRow | null)[] = [];
 for (let i = 1; i < lines.length; i++) {
   // Parse CSV with quoted fields
   const values = lines[i].match(/("([^"]*)"|[^,]+)/g)?.map(v => v.replace(/^"|"$/g, "")) || [];

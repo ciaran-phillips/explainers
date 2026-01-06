@@ -1,12 +1,22 @@
 // Transformation functions for CSO population data
 // Converts individual age data to 5-year cohorts
 
+export type Scenario = "M1" | "M2" | "M3";
+export type CohortData = Record<string, number>;
+export type YearData = Record<number, CohortData>;
+export type ScenarioData = Record<Scenario, YearData>;
+
+export interface ParsedRow {
+  year: number;
+  cohort: string;
+  scenario: Scenario;
+  population: number;
+}
+
 /**
  * Parse age string from CSO format to numeric age
- * @param {string} ageString - e.g., "Under 1 year", "15 years", "99 years and over"
- * @returns {number|null} - numeric age, or null if should be skipped (e.g., "All ages")
  */
-export function parseAge(ageString) {
+export function parseAge(ageString: string): number | null {
   if (ageString === "All ages") {
     return null;
   }
@@ -26,10 +36,8 @@ export function parseAge(ageString) {
 
 /**
  * Map a numeric age to a 5-year cohort string
- * @param {number} age - numeric age (0-99+)
- * @returns {string} - cohort string like "0-4", "15-19", "85+"
  */
-export function ageToCohort(age) {
+export function ageToCohort(age: number): string {
   if (age >= 85) {
     return "85+";
   }
@@ -40,20 +48,16 @@ export function ageToCohort(age) {
 
 /**
  * Extract scenario code from CSO criteria string
- * @param {string} criteriaString - e.g., "Method - M1"
- * @returns {string} - scenario code like "M1"
  */
-export function parseScenario(criteriaString) {
-  const match = criteriaString.match(/Method - (M\d)/);
-  return match ? match[1] : null;
+export function parseScenario(criteriaString: string): Scenario | null {
+  const match = criteriaString.match(/Method - (M[123])/);
+  return match ? (match[1] as Scenario) : null;
 }
 
 /**
  * Parse a single CSV row from CSO format
- * @param {string[]} values - array of CSV values
- * @returns {object|null} - parsed row or null if should be skipped
  */
-export function parseRow(values) {
+export function parseRow(values: string[]): ParsedRow | null {
   // Expected columns: Statistic Label, Year, Age, Sex, Criteria for Projection, UNIT, VALUE
   const year = parseInt(values[1], 10);
   const ageString = values[2];
@@ -72,11 +76,9 @@ export function parseRow(values) {
 
 /**
  * Aggregate parsed rows by scenario, year, and cohort
- * @param {object[]} rows - array of parsed row objects
- * @returns {object} - nested object: { M1: { 2022: { "15-19": population, ... }, ... }, ... }
  */
-export function aggregateByCohort(rows) {
-  const result = {
+export function aggregateByCohort(rows: (ParsedRow | null)[]): ScenarioData {
+  const result: ScenarioData = {
     M1: {},
     M2: {},
     M3: {}
@@ -86,8 +88,6 @@ export function aggregateByCohort(rows) {
     if (!row) continue;
 
     const { year, cohort, scenario, population } = row;
-
-    if (!result[scenario]) continue;
 
     if (!result[scenario][year]) {
       result[scenario][year] = {};
@@ -108,19 +108,22 @@ export const HOUSEHOLD_COHORTS = [
   "15-19", "20-24", "25-29", "30-34", "35-39", "40-44",
   "45-49", "50-54", "55-59", "60-64", "65-69", "70-74",
   "75-79", "80-84", "85+"
-];
+] as const;
 
 /**
  * Filter aggregated data to only include household-forming cohorts
- * @param {object} aggregated - output from aggregateByCohort
- * @returns {object} - filtered to only HOUSEHOLD_COHORTS
  */
-export function filterHouseholdCohorts(aggregated) {
-  const result = {};
+export function filterHouseholdCohorts(aggregated: ScenarioData): ScenarioData {
+  const result: ScenarioData = {
+    M1: {},
+    M2: {},
+    M3: {}
+  };
 
-  for (const [scenario, years] of Object.entries(aggregated)) {
-    result[scenario] = {};
-    for (const [year, cohorts] of Object.entries(years)) {
+  for (const scenario of Object.keys(aggregated) as Scenario[]) {
+    const years = aggregated[scenario];
+    for (const [yearStr, cohorts] of Object.entries(years)) {
+      const year = parseInt(yearStr, 10);
       result[scenario][year] = {};
       for (const cohort of HOUSEHOLD_COHORTS) {
         if (cohorts[cohort] !== undefined) {

@@ -69,7 +69,7 @@ const input = view(Inputs.radio(options, {value: options[1], format: d => d.labe
 ```
 
 ### Data Loaders
-Files ending in `.json.js` are data loaders that run at build time. Output JSON via:
+Files ending in `.json.js` or `.json.ts` are data loaders that run at build time. Output JSON via:
 ```js
 process.stdout.write(JSON.stringify(data));
 ```
@@ -81,4 +81,20 @@ React components are defined in files using the `.jsx` extension, but are import
 import { MyComponent } from "./components/MyComponent.jsx";
 display(<MyComponent prop={value} />)
 ```
+
+## General development patterns
+
+### Types 
+
+In general, new code should be written in typescript, not plain javascript. Complex types should be named rather than specified inline. 
+
+Functions returning primitives can use implicit return types. Functions returning objects should have typed return values
+
+### Comments
+
+Simple functions don't need comments unless the functionn seems non-obvious. Prioritize readable code over explaining the code. Function comments should mostly be a single line specifying the purpose of the function, especially if the _why_ of the code is unclear. We don't need function comments to document every parameter and return value - our type definitions do most of that work for us 
+
+### Styling
+
+CSS should be written in dedicated CSS files and not written within our markdown pages. We should keep our CSS flat through the use of specific classnames rather than relying on nested classes/components
 

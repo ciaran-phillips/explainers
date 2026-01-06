@@ -2,11 +2,28 @@
 // Generates annual headship rates for each scenario (2022-2040) using linear interpolation
 
 import { readFileSync } from "fs";
-const scenarios = JSON.parse(readFileSync("src/data/esri-scenarios.json", "utf-8"));
 
-function interpolate(data) {
+interface ScenarioInput {
+  label: string;
+  description: string;
+  data: Record<string, number>;
+}
+
+interface ScenariosFile {
+  headshipScenarios: Record<string, ScenarioInput>;
+}
+
+interface ScenarioOutput {
+  label: string;
+  description: string;
+  data: Record<number, number>;
+}
+
+const scenarios: ScenariosFile = JSON.parse(readFileSync("src/data/esri-scenarios.json", "utf-8"));
+
+function interpolate(data: Record<string, number>): Record<number, number> {
   const years = Object.keys(data).map(Number).sort((a, b) => a - b);
-  const result = {};
+  const result: Record<number, number> = {};
 
   for (let year = years[0]; year <= years[years.length - 1]; year++) {
     if (data[year] !== undefined) {
@@ -30,7 +47,7 @@ function interpolate(data) {
   return result;
 }
 
-const headshipRates = {};
+const headshipRates: Record<string, ScenarioOutput> = {};
 
 for (const [key, scenario] of Object.entries(scenarios.headshipScenarios)) {
   headshipRates[key] = {

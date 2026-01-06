@@ -7,7 +7,9 @@ import {
   parseRow,
   aggregateByCohort,
   filterHouseholdCohorts,
-  HOUSEHOLD_COHORTS
+  HOUSEHOLD_COHORTS,
+  type ParsedRow,
+  type ScenarioData
 } from "./cb-population-transforms.js";
 
 describe("parseAge", () => {
@@ -122,6 +124,7 @@ describe("parseRow", () => {
       "10443"
     ];
     const result = parseRow(values);
+    assert.ok(result !== null);
     assert.strictEqual(result.cohort, "85+");
     assert.strictEqual(result.scenario, "M2");
   });
@@ -129,7 +132,7 @@ describe("parseRow", () => {
 
 describe("aggregateByCohort", () => {
   test("aggregates multiple ages into same cohort", () => {
-    const rows = [
+    const rows: ParsedRow[] = [
       { year: 2022, cohort: "15-19", scenario: "M1", population: 100 },
       { year: 2022, cohort: "15-19", scenario: "M1", population: 200 },
       { year: 2022, cohort: "15-19", scenario: "M1", population: 150 }
@@ -139,7 +142,7 @@ describe("aggregateByCohort", () => {
   });
 
   test("keeps scenarios separate", () => {
-    const rows = [
+    const rows: ParsedRow[] = [
       { year: 2022, cohort: "20-24", scenario: "M1", population: 100 },
       { year: 2022, cohort: "20-24", scenario: "M2", population: 200 }
     ];
@@ -149,7 +152,7 @@ describe("aggregateByCohort", () => {
   });
 
   test("keeps years separate", () => {
-    const rows = [
+    const rows: ParsedRow[] = [
       { year: 2022, cohort: "25-29", scenario: "M1", population: 100 },
       { year: 2023, cohort: "25-29", scenario: "M1", population: 150 }
     ];
@@ -159,7 +162,7 @@ describe("aggregateByCohort", () => {
   });
 
   test("skips null rows", () => {
-    const rows = [
+    const rows: (ParsedRow | null)[] = [
       { year: 2022, cohort: "30-34", scenario: "M1", population: 100 },
       null,
       { year: 2022, cohort: "30-34", scenario: "M1", population: 50 }
@@ -171,7 +174,7 @@ describe("aggregateByCohort", () => {
 
 describe("filterHouseholdCohorts", () => {
   test("removes cohorts under 15", () => {
-    const aggregated = {
+    const aggregated: ScenarioData = {
       M1: {
         2022: {
           "0-4": 100,
@@ -193,10 +196,11 @@ describe("filterHouseholdCohorts", () => {
   });
 
   test("HOUSEHOLD_COHORTS contains expected cohorts", () => {
-    assert.ok(HOUSEHOLD_COHORTS.includes("15-19"));
-    assert.ok(HOUSEHOLD_COHORTS.includes("85+"));
-    assert.ok(!HOUSEHOLD_COHORTS.includes("0-4"));
-    assert.ok(!HOUSEHOLD_COHORTS.includes("10-14"));
+    const cohorts = HOUSEHOLD_COHORTS as readonly string[];
+    assert.ok(cohorts.includes("15-19"));
+    assert.ok(cohorts.includes("85+"));
+    assert.ok(!cohorts.includes("0-4"));
+    assert.ok(!cohorts.includes("10-14"));
   });
 });
 
@@ -205,7 +209,7 @@ describe("integration: verify cohort sums match expected values", () => {
     // From the actual CSV data for 2022, M1:
     // Under 1 year: 57684, 1 year: 56631, 2 years: 59250, 3 years: 60596, 4 years: 61673
     // Expected sum: 295834 (matches cb-population-by-cohort.csv)
-    const rows = [
+    const rows: ParsedRow[] = [
       { year: 2022, cohort: "0-4", scenario: "M1", population: 57684 },
       { year: 2022, cohort: "0-4", scenario: "M1", population: 56631 },
       { year: 2022, cohort: "0-4", scenario: "M1", population: 59250 },
