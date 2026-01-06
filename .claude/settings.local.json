@@ -9,7 +9,10 @@
       "Bash(lsof:*)",
       "Bash(node src/data/population-by-cohort.json.js:*)",
       "Bash(npm run clean:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node --test:*)",
+      "Bash(node:*)",
+      "Bash(node -e:*)"
     ]
   }
 }
