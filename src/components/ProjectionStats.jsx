@@ -14,32 +14,32 @@ export function ProjectionStats({
   const periodYears = endYear - startYear + 1;
 
   return (
-    <div className="projection-stats">
-      <div className="stats-header">
-        <span className="scenario-label">{migrationLabel}</span>
-        <span className="scenario-separator">+</span>
-        <span className="scenario-label">{headshipLabel}</span>
+    <div>
+      <div className="projection-stats-header">
+        <span className="projection-scenario-label">{migrationLabel}</span>
+        <span className="projection-scenario-separator">+</span>
+        <span className="projection-scenario-label">{headshipLabel}</span>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{Math.round(avgDemand).toLocaleString()}</div>
-          <div className="stat-label">Average Annual Need</div>
-          <div className="stat-sublabel">{startYear}-{endYear}</div>
+      <div className="projection-stats-grid">
+        <div className="projection-stat-card">
+          <div className="projection-stat-value">{Math.round(avgDemand).toLocaleString()}</div>
+          <div className="projection-stat-label">Average Annual Need</div>
+          <div className="projection-stat-sublabel">{startYear}-{endYear}</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-value">{Math.round(totalDemand).toLocaleString()}</div>
-          <div className="stat-label">Total Units Needed</div>
-          <div className="stat-sublabel">{periodYears} years</div>
+        <div className="projection-stat-card">
+          <div className="projection-stat-value">{Math.round(totalDemand).toLocaleString()}</div>
+          <div className="projection-stat-label">Total Units Needed</div>
+          <div className="projection-stat-sublabel">{periodYears} years</div>
         </div>
 
-        <div className="stat-card">
-          <div className={`stat-value ${gapVsSupply > 0 ? 'gap-positive' : 'gap-negative'}`}>
+        <div className="projection-stat-card">
+          <div className={`projection-stat-value ${gapVsSupply > 0 ? 'projection-stat-value-positive' : 'projection-stat-value-negative'}`}>
             {gapVsSupply > 0 ? '+' : ''}{Math.round(gapVsSupply).toLocaleString()}
           </div>
-          <div className="stat-label">Gap vs 2023 Supply</div>
-          <div className="stat-sublabel">33k baseline</div>
+          <div className="projection-stat-label">Gap vs 2023 Supply</div>
+          <div className="projection-stat-sublabel">33k baseline</div>
         </div>
       </div>
     </div>

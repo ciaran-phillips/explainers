@@ -53,36 +53,36 @@ export function ComparisonTable({ selectedScenario, allScenarios }) {
       <table className="comparison-table">
         <thead>
           <tr>
-            <th></th>
-            <th>2023-2030<br /><span className="subheader">(avg/year)</span></th>
-            <th>2030-2040<br /><span className="subheader">(avg/year)</span></th>
-            <th>Total<br /><span className="subheader">(18 years)</span></th>
+            <th className="comparison-table-header"></th>
+            <th className="comparison-table-header">2023-2030<br /><span className="comparison-table-subheader">(avg/year)</span></th>
+            <th className="comparison-table-header">2030-2040<br /><span className="comparison-table-subheader">(avg/year)</span></th>
+            <th className="comparison-table-header">Total<br /><span className="comparison-table-subheader">(18 years)</span></th>
           </tr>
         </thead>
         <tbody>
-          <tr className="selected-row">
-            <td className="label-cell">Your Scenario</td>
-            <td>{formatNum(selected.avg2023_2030)}</td>
-            <td>{formatNum(selected.avg2030_2040)}</td>
-            <td>{formatNum(selected.total)}</td>
+          <tr className="comparison-table-row-selected">
+            <td className="comparison-table-label">Your Scenario</td>
+            <td className="comparison-table-cell">{formatNum(selected.avg2023_2030)}</td>
+            <td className="comparison-table-cell">{formatNum(selected.avg2030_2040)}</td>
+            <td className="comparison-table-cell">{formatNum(selected.total)}</td>
           </tr>
           <tr>
-            <td className="label-cell">Minimum</td>
-            <td>{formatNum(min.avg2023_2030)}</td>
-            <td>{formatNum(min.avg2030_2040)}</td>
-            <td>{formatNum(min.total)}</td>
+            <td className="comparison-table-label">Minimum</td>
+            <td className="comparison-table-cell">{formatNum(min.avg2023_2030)}</td>
+            <td className="comparison-table-cell">{formatNum(min.avg2030_2040)}</td>
+            <td className="comparison-table-cell">{formatNum(min.total)}</td>
           </tr>
           <tr>
-            <td className="label-cell">Maximum</td>
-            <td>{formatNum(max.avg2023_2030)}</td>
-            <td>{formatNum(max.avg2030_2040)}</td>
-            <td>{formatNum(max.total)}</td>
+            <td className="comparison-table-label">Maximum</td>
+            <td className="comparison-table-cell">{formatNum(max.avg2023_2030)}</td>
+            <td className="comparison-table-cell">{formatNum(max.avg2030_2040)}</td>
+            <td className="comparison-table-cell">{formatNum(max.total)}</td>
           </tr>
-          <tr className="avg-row">
-            <td className="label-cell">Average (all scenarios)</td>
-            <td>{formatNum(avg.avg2023_2030)}</td>
-            <td>{formatNum(avg.avg2030_2040)}</td>
-            <td>{formatNum(avg.total)}</td>
+          <tr className="comparison-table-row-avg">
+            <td className="comparison-table-label">Average (all scenarios)</td>
+            <td className="comparison-table-cell">{formatNum(avg.avg2023_2030)}</td>
+            <td className="comparison-table-cell">{formatNum(avg.avg2030_2040)}</td>
+            <td className="comparison-table-cell">{formatNum(avg.total)}</td>
           </tr>
         </tbody>
       </table>

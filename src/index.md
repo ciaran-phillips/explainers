@@ -53,7 +53,8 @@ const migrationOptions = Object.entries(scenarios.populationScenarios).map(([key
 const migrationInput = view(Inputs.radio(migrationOptions, {
   label: "Migration",
   value: "baseline",
-  format: d => d.label
+  format: d => d.label,
+  valueof: d => d.value
 }));
 ```
 
@@ -66,7 +67,8 @@ const headshipOptions = Object.entries(scenarios.headshipScenarios).map(([key, v
 const headshipInput = view(Inputs.radio(headshipOptions, {
   label: "Household Formation",
   value: "current",
-  format: d => d.label
+  format: d => d.label,
+  valueof: d => d.value
 }));
 ```
 
@@ -79,7 +81,8 @@ const obsolescenceOptions = Object.entries(scenarios.obsolescenceScenarios).map(
 const obsolescenceInput = view(Inputs.radio(obsolescenceOptions, {
   label: "Obsolescence Rate",
   value: "low",
-  format: d => d.label
+  format: d => d.label,
+  valueof: d => d.value
 }));
 ```
 
@@ -89,9 +92,9 @@ const obsolescenceInput = view(Inputs.radio(obsolescenceOptions, {
 ```js
 // Generate selected scenario time series
 const selectedTimeSeries = generateScenarioTimeSeries(
-  populationProjections[migrationInput.value].data,
-  headshipRates[headshipInput.value].data,
-  scenarios.obsolescenceScenarios[obsolescenceInput.value].rate,
+  populationProjections[migrationInput].data,
+  headshipRates[headshipInput].data,
+  scenarios.obsolescenceScenarios[obsolescenceInput].rate,
   scenarios.housingStock[2022]
 );
 ```
@@ -176,128 +179,3 @@ resize((width) => display(<BreakdownChart
   <p>Formula: Annual Housing Demand = New Households Formation + Replacement Stock</p>
 </div>
 
-<style>
-
-.note {
-  background: var(--theme-background-alt);
-  border-left: 4px solid var(--theme-foreground-focus);
-  padding: 1rem 1.5rem;
-  border-radius: 0 8px 8px 0;
-}
-
-.note h4 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1rem;
-}
-
-.note p, .note ul {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.note ul {
-  padding-left: 1.25rem;
-}
-
-.source-info {
-  font-size: 0.875rem;
-  color: var(--theme-foreground-muted);
-}
-
-/* Summary Stats */
-.summary-stats h3 {
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--theme-foreground-muted);
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--theme-foreground-faintest);
-}
-
-.stat-label {
-  color: var(--theme-foreground-muted);
-}
-
-.stat-value {
-  font-weight: 600;
-}
-
-.stat-range {
-  margin-top: 1rem;
-  padding-top: 0.5rem;
-}
-
-.range-header {
-  font-size: 0.875rem;
-  color: var(--theme-foreground-muted);
-  margin-bottom: 0.5rem;
-}
-
-.range-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  padding: 0.25rem 0;
-}
-
-/* Comparison Table */
-.comparison-table-wrapper {
-  overflow-x: auto;
-}
-
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.comparison-table th {
-  padding: 0.75rem 1rem;
-  text-align: right;
-  font-weight: 600;
-  color: var(--theme-foreground-muted);
-  border-bottom: 2px solid var(--theme-foreground-faintest);
-}
-
-.comparison-table th:first-child {
-  text-align: left;
-}
-
-.comparison-table .subheader {
-  font-weight: normal;
-  font-size: 0.75rem;
-}
-
-.comparison-table td {
-  padding: 0.75rem 1rem;
-  text-align: right;
-  border-bottom: 1px solid var(--theme-foreground-faintest);
-}
-
-.comparison-table .label-cell {
-  text-align: left;
-  font-weight: 500;
-}
-
-.comparison-table .selected-row {
-  background: var(--theme-foreground-focus);
-  background-opacity: 0.1;
-}
-
-.comparison-table .selected-row td {
-  color: var(--theme-foreground-focus);
-  font-weight: 600;
-}
-
-.comparison-table .avg-row {
-  background: var(--theme-background-alt);
-}
-
-</style>

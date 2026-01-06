@@ -23,22 +23,22 @@ export function ScenarioComparisonTable({
   const comparisonYears = [2030, 2040, 2050].filter(y => y <= endYear && y >= startYear);
 
   return (
-    <div className="scenario-comparison-wrapper">
-      <table className="scenario-comparison-table">
+    <div className="scenario-table-wrapper">
+      <table className="scenario-table">
         <thead>
           <tr>
-            <th>Scenario</th>
+            <th className="scenario-table-header">Scenario</th>
             {comparisonYears.map(year => (
-              <th key={year}>{year}</th>
+              <th className="scenario-table-header" key={year}>{year}</th>
             ))}
-            <th>Average<br /><span className="subheader">{startYear}-{endYear}</span></th>
+            <th className="scenario-table-header">Average<br /><span className="scenario-table-subheader">{startYear}-{endYear}</span></th>
           </tr>
         </thead>
         <tbody>
           {Object.entries(migrationGroups).map(([migKey, scenarios]) => (
             <React.Fragment key={migKey}>
-              <tr className="migration-header">
-                <td colSpan={comparisonYears.length + 2}>
+              <tr>
+                <td className="scenario-table-migration-header" colSpan={comparisonYears.length + 2}>
                   {scenarios[0]?.migrationLabel || migKey}
                 </td>
               </tr>
@@ -47,17 +47,17 @@ export function ScenarioComparisonTable({
                 const avg = calculatePeriodAverage(scenario.timeSeries, startYear, endYear);
 
                 return (
-                  <tr key={scenario.id} className={isSelected ? 'selected-row' : ''}>
-                    <td className="label-cell">{scenario.headshipLabel}</td>
+                  <tr key={scenario.id} className={isSelected ? 'scenario-table-row-selected' : ''}>
+                    <td className="scenario-table-label">{scenario.headshipLabel}</td>
                     {comparisonYears.map(year => {
                       const demand = getYearDemand(scenario.timeSeries, year);
                       return (
-                        <td key={year}>
+                        <td className="scenario-table-cell" key={year}>
                           {demand !== null ? Math.round(demand).toLocaleString() : '-'}
                         </td>
                       );
                     })}
-                    <td className="avg-cell">{Math.round(avg).toLocaleString()}</td>
+                    <td className="scenario-table-cell-avg">{Math.round(avg).toLocaleString()}</td>
                   </tr>
                 );
               })}

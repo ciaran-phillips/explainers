@@ -23,26 +23,26 @@ export function SummaryStats({ selectedScenario, allScenarios }) {
   const range2030_2040 = { min: Math.min(...allAvg2030_2040), max: Math.max(...allAvg2030_2040) };
 
   return (
-    <div className="summary-stats">
-      <h3>Projected Housing Demand</h3>
+    <div>
+      <h3 className="summary-stats-title">Projected Housing Demand</h3>
 
-      <div className="stat-row">
-        <span className="stat-label">2023-2030 Average:</span>
-        <span className="stat-value">{formatNum(avg2023_2030)}/year</span>
+      <div className="summary-stat-row">
+        <span className="summary-stat-label">2023-2030 Average:</span>
+        <span className="summary-stat-value">{formatNum(avg2023_2030)}/year</span>
       </div>
 
-      <div className="stat-row">
-        <span className="stat-label">2030-2040 Average:</span>
-        <span className="stat-value">{formatNum(avg2030_2040)}/year</span>
+      <div className="summary-stat-row">
+        <span className="summary-stat-label">2030-2040 Average:</span>
+        <span className="summary-stat-value">{formatNum(avg2030_2040)}/year</span>
       </div>
 
-      <div className="stat-range">
-        <div className="range-header">Range across all scenarios:</div>
-        <div className="range-row">
+      <div className="summary-stat-range">
+        <div className="summary-range-header">Range across all scenarios:</div>
+        <div className="summary-range-row">
           <span>2023-2030:</span>
           <span>{formatNum(range2023_2030.min)} - {formatNum(range2023_2030.max)}</span>
         </div>
-        <div className="range-row">
+        <div className="summary-range-row">
           <span>2030-2040:</span>
           <span>{formatNum(range2030_2040.min)} - {formatNum(range2030_2040.max)}</span>
         </div>

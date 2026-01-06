@@ -1,0 +1,258 @@
+/* Shared Styles */
+
+.note {
+  background: var(--theme-background-alt);
+  border-left: 4px solid var(--theme-foreground-focus);
+  padding: 1rem 1.5rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.note-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+}
+
+.note-text {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.note-list {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.source-info {
+  font-size: 0.875rem;
+  color: var(--theme-foreground-muted);
+}
+
+/* Summary Stats (Index Page) */
+
+.summary-stats-title {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--theme-foreground-muted);
+}
+
+.summary-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+
+.summary-stat-label {
+  color: var(--theme-foreground-muted);
+}
+
+.summary-stat-value {
+  font-weight: 600;
+}
+
+.summary-stat-range {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.summary-range-header {
+  font-size: 0.875rem;
+  color: var(--theme-foreground-muted);
+  margin-bottom: 0.5rem;
+}
+
+.summary-range-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+}
+
+/* Comparison Table (Index Page) */
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.comparison-table-header {
+  padding: 0.75rem 1rem;
+  text-align: right;
+  font-weight: 600;
+  color: var(--theme-foreground-muted);
+  border-bottom: 2px solid var(--theme-foreground-faintest);
+}
+
+.comparison-table-header:first-child {
+  text-align: left;
+}
+
+.comparison-table-subheader {
+  font-weight: normal;
+  font-size: 0.75rem;
+}
+
+.comparison-table-cell {
+  padding: 0.75rem 1rem;
+  text-align: right;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+
+.comparison-table-label {
+  text-align: left;
+  font-weight: 500;
+}
+
+.comparison-table-row-selected {
+  background: var(--theme-foreground-focus);
+  background-opacity: 0.1;
+}
+
+.comparison-table-row-selected td {
+  color: var(--theme-foreground-focus);
+  font-weight: 600;
+}
+
+.comparison-table-row-avg {
+  background: var(--theme-background-alt);
+}
+
+/* Projection Stats (Projections Page) */
+
+.projection-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--theme-foreground-muted);
+}
+
+.projection-scenario-label {
+  background: var(--theme-background-alt);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.projection-scenario-separator {
+  color: var(--theme-foreground-faint);
+}
+
+.projection-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.projection-stat-card {
+  text-align: center;
+  padding: 1rem;
+  background: var(--theme-background-alt);
+  border-radius: 8px;
+}
+
+.projection-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--theme-foreground);
+}
+
+.projection-stat-value-positive {
+  color: #dc2626;
+}
+
+.projection-stat-value-negative {
+  color: #10b981;
+}
+
+.projection-stat-label {
+  font-size: 0.875rem;
+  color: var(--theme-foreground-muted);
+  margin-top: 0.25rem;
+}
+
+.projection-stat-sublabel {
+  font-size: 0.75rem;
+  color: var(--theme-foreground-faint);
+}
+
+/* Cohort Breakdown (Projections Page) */
+
+.cohort-breakdown {
+  position: relative;
+}
+
+.cohort-legend {
+  display: none; /* Using Plot's built-in legend */
+}
+
+/* Scenario Comparison Table (Projections Page) */
+
+.scenario-table-wrapper {
+  overflow-x: auto;
+}
+
+.scenario-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.scenario-table-header {
+  padding: 0.75rem 0.5rem;
+  text-align: right;
+  font-weight: 600;
+  color: var(--theme-foreground-muted);
+  border-bottom: 2px solid var(--theme-foreground-faintest);
+}
+
+.scenario-table-header:first-child {
+  text-align: left;
+}
+
+.scenario-table-subheader {
+  font-weight: normal;
+  font-size: 0.7rem;
+}
+
+.scenario-table-cell {
+  padding: 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--theme-foreground-faintest);
+}
+
+.scenario-table-label {
+  text-align: left;
+  padding-left: 1rem;
+}
+
+.scenario-table-migration-header {
+  background: var(--theme-background-alt);
+  font-weight: 600;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.scenario-table-row-selected {
+  background: rgba(30, 58, 138, 0.1);
+}
+
+.scenario-table-row-selected td {
+  font-weight: 600;
+}
+
+.scenario-table-cell-avg {
+  font-weight: 600;
+  background: var(--theme-background-alt);
+}
