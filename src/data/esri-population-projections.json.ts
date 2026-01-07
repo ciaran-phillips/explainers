@@ -2,6 +2,7 @@
 // Generates annual population for each scenario (2022-2040) using linear interpolation
 
 import { readFileSync } from "fs";
+import type { PopulationProjections, PopulationYear, Scenario } from "./population-types.js";
 
 interface ScenarioInput {
   label: string;
@@ -13,21 +14,16 @@ interface ScenariosFile {
   populationScenarios: Record<string, ScenarioInput>;
 }
 
-interface ScenarioOutput {
-  label: string;
-  description: string;
-  data: Record<number, number>;
-}
-
 const scenarios: ScenariosFile = JSON.parse(readFileSync("src/data/esri-scenarios.json", "utf-8"));
 
-function interpolate(data: Record<string, number>): Record<number, number> {
+function interpolate(data: Record<string, number>): Record<number, PopulationYear> {
   const years = Object.keys(data).map(Number).sort((a, b) => a - b);
-  const result: Record<number, number> = {};
+  const result: Record<number, PopulationYear> = {};
 
   for (let year = years[0]; year <= years[years.length - 1]; year++) {
+    let total: number;
     if (data[year] !== undefined) {
-      result[year] = data[year];
+      total = data[year];
     } else {
       // Find surrounding years
       let lowerYear = years[0];
@@ -40,17 +36,18 @@ function interpolate(data: Record<string, number>): Record<number, number> {
 
       // Linear interpolation
       const t = (year - lowerYear) / (upperYear - lowerYear);
-      result[year] = data[lowerYear] + t * (data[upperYear] - data[lowerYear]);
+      total = data[lowerYear] + t * (data[upperYear] - data[lowerYear]);
     }
+    result[year] = { total };
   }
 
   return result;
 }
 
-const populationProjections: Record<string, ScenarioOutput> = {};
+const populationProjections = {} as PopulationProjections;
 
 for (const [key, scenario] of Object.entries(scenarios.populationScenarios)) {
-  populationProjections[key] = {
+  populationProjections[key as Scenario] = {
     label: scenario.label,
     description: scenario.description,
     data: interpolate(scenario.data)

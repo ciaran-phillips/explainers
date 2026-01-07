@@ -11,6 +11,7 @@ import {
   filterHouseholdCohorts,
   type ParsedRow
 } from "./cb-population-transforms.js";
+import type { PopulationProjections, PopulationYear, Scenario, CohortData } from "./population-types.js";
 
 const csv = readFileSync("src/data/cb-population-projections-all-years.csv", "utf-8");
 const lines = csv.trim().split("\n");
@@ -37,22 +38,32 @@ for (let i = 1; i < lines.length; i++) {
 const aggregated = aggregateByCohort(parsedRows);
 const filtered = filterHouseholdCohorts(aggregated);
 
-// Add metadata
-const output = {
+// Transform to unified format with total and cohorts
+function toPopulationData(yearData: Record<number, Record<string, number>>): Record<number, PopulationYear> {
+  const result: Record<number, PopulationYear> = {};
+  for (const [yearStr, cohorts] of Object.entries(yearData)) {
+    const year = parseInt(yearStr, 10);
+    const total = Object.values(cohorts).reduce((sum, pop) => sum + pop, 0);
+    result[year] = { total, cohorts: cohorts as CohortData };
+  }
+  return result;
+}
+
+const output: PopulationProjections = {
   M1: {
     label: "Low Migration",
     description: "M1 scenario - lower net migration",
-    data: filtered.M1
+    data: toPopulationData(filtered.M1)
   },
   M2: {
     label: "Baseline Migration",
     description: "M2 scenario - baseline net migration",
-    data: filtered.M2
+    data: toPopulationData(filtered.M2)
   },
   M3: {
     label: "High Migration",
     description: "M3 scenario - higher net migration",
-    data: filtered.M3
+    data: toPopulationData(filtered.M3)
   }
 };
 

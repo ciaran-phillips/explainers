@@ -1,5 +1,15 @@
 // Cohort-based housing demand calculation functions
 
+import type {
+  Cohort,
+  CohortData,
+  PopulationYear,
+  PopulationProjections,
+  Scenario as MigrationScenario
+} from "../data/population-types.js";
+
+export { type Cohort, type CohortData, type PopulationProjections, type MigrationScenario };
+
 export const CONSTANTS = {
   BASE_HOUSING_STOCK: 2300000,
   DEFAULT_OBSOLESCENCE: 0.0025,
@@ -17,14 +27,11 @@ export const COHORTS = [
   "45-49", "50-54", "55-59", "60-64", "65+"
 ] as const;
 
-export type Cohort = typeof COHORTS[number];
-
 export type HeadshipRates = Record<Cohort, number>;
-export type PopulationByCohort = Record<Cohort, number>;
-export type PopulationData = Record<number, PopulationByCohort>;
+export type PopulationByCohort = CohortData;
+export type PopulationData = Record<number, PopulationYear>;
 
 export type HeadshipScenario = "current" | "gradual" | "fast";
-export type MigrationScenario = "M1" | "M2" | "M3";
 
 export interface TimeSeriesPoint {
   year: number;
@@ -47,12 +54,6 @@ export interface ScenarioRangePoint {
   year: number;
   min: number;
   max: number;
-}
-
-export interface PopulationProjections {
-  M1: { label: string; data: PopulationData };
-  M2: { label: string; data: PopulationData };
-  M3: { label: string; data: PopulationData };
 }
 
 // Linear interpolation from current to UK rates over 20 years
@@ -103,9 +104,11 @@ function getHeadshipRatesForYear(
 }
 
 export function calculateTotalHouseholds(
-  populationByCohort: PopulationByCohort,
+  populationByCohort: PopulationByCohort | undefined,
   headshipRates: HeadshipRates
 ) {
+  if (!populationByCohort) return 0;
+
   let total = 0;
 
   for (const cohort of COHORTS) {
@@ -141,13 +144,11 @@ export function generateCohortTimeSeries(
     );
 
     const totalHouseholds = calculateTotalHouseholds(
-      populationData[year],
+      populationData[year].cohorts,
       headshipRates
     );
 
-
     if (prevHouseholds !== null) {
-      console.log(totalHouseholds)
       const householdGrowth = totalHouseholds - prevHouseholds;
       const obsolescence = housingStock * obsolescenceRate;
       const demand = householdGrowth + obsolescence;
@@ -186,12 +187,12 @@ export function generateAllCohortScenarios(
 ): Scenario[] {
   const scenarios: Scenario[] = [];
   const migrationKeys: MigrationScenario[] = ["M1", "M2", "M3"];
-  const headshipKeys: HeadshipScenario[] = ["current", "gradual", "uk"];
+  const headshipKeys: HeadshipScenario[] = ["current", "gradual", "fast"];
 
   const headshipLabels: Record<HeadshipScenario, string> = {
     current: "Irish Current",
     gradual: "Gradual Convergence",
-    uk: "UK Rates"
+    fast: "Fast Convergence"
   };
 
   for (const migKey of migrationKeys) {
