@@ -44,6 +44,7 @@ export function calculateAnnualDemand(
 /**
  * Generate time series for a given scenario combination
  * populationData uses unified format: { [year]: { total: number, cohorts?: {...} } }
+ * headshipData uses unified format: { [year]: { aggregate?: number, cohorts?: {...} } }
  */
 export function generateScenarioTimeSeries(
   populationData,
@@ -64,8 +65,8 @@ export function generateScenarioTimeSeries(
     const demand = calculateAnnualDemand(
       populationData[year].total,
       populationData[prevYear].total,
-      headshipData[year],
-      headshipData[prevYear],
+      headshipData[year].aggregate,
+      headshipData[prevYear].aggregate,
       currentStock,
       obsolescenceRate
     );

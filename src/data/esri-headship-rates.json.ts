@@ -1,7 +1,9 @@
 // Headship rates data loader
 // Generates annual headship rates for each scenario (2022-2040) using linear interpolation
+// Outputs unified HeadshipYear format with aggregate rates
 
 import { readFileSync } from "fs";
+import type { HeadshipProjections, HeadshipYear } from "./headship-types.js";
 
 interface ScenarioInput {
   label: string;
@@ -13,21 +15,16 @@ interface ScenariosFile {
   headshipScenarios: Record<string, ScenarioInput>;
 }
 
-interface ScenarioOutput {
-  label: string;
-  description: string;
-  data: Record<number, number>;
-}
-
 const scenarios: ScenariosFile = JSON.parse(readFileSync("src/data/esri-scenarios.json", "utf-8"));
 
-function interpolate(data: Record<string, number>): Record<number, number> {
+function interpolate(data: Record<string, number>): Record<number, HeadshipYear> {
   const years = Object.keys(data).map(Number).sort((a, b) => a - b);
-  const result: Record<number, number> = {};
+  const result: Record<number, HeadshipYear> = {};
 
   for (let year = years[0]; year <= years[years.length - 1]; year++) {
+    let aggregate: number;
     if (data[year] !== undefined) {
-      result[year] = data[year];
+      aggregate = data[year];
     } else {
       // Find surrounding years
       let lowerYear = years[0];
@@ -40,14 +37,15 @@ function interpolate(data: Record<string, number>): Record<number, number> {
 
       // Linear interpolation
       const t = (year - lowerYear) / (upperYear - lowerYear);
-      result[year] = data[lowerYear] + t * (data[upperYear] - data[lowerYear]);
+      aggregate = data[lowerYear] + t * (data[upperYear] - data[lowerYear]);
     }
+    result[year] = { aggregate };
   }
 
   return result;
 }
 
-const headshipRates: Record<string, ScenarioOutput> = {};
+const headshipRates: HeadshipProjections = {};
 
 for (const [key, scenario] of Object.entries(scenarios.headshipScenarios)) {
   headshipRates[key] = {

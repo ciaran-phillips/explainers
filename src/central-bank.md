@@ -25,15 +25,14 @@ import * as Plot from "npm:@observablehq/plot";
 ```js
 // Load data
 const populationByCohort = await FileAttachment("data/cb-population-by-cohort.json").json();
-const headshipRates = await FileAttachment("data/cb-headship-rates-by-cohort.json").json();
+const headshipRates = await FileAttachment("data/cb-headship-rates.json").json();
 ```
 
 ```js
 // Pre-calculate all scenarios for range display
 const allScenarios = generateAllCohortScenarios(
   populationByCohort,
-  headshipRates.current.rates,
-  headshipRates.uk_convergence.rates,
+  headshipRates,
   CONSTANTS.DEFAULT_OBSOLESCENCE,
   CONSTANTS.BASE_HOUSING_STOCK
 );
@@ -115,9 +114,7 @@ display(Plot.plot({
 // Generate time series for selected scenario
 const timeSeries = generateCohortTimeSeries(
   populationByCohort[migrationInput.value].data,
-  headshipRates.current.rates,
-  headshipRates.uk_convergence.rates,
-  headshipInput.value,
+  headshipRates[headshipInput.value].data,
   obsolescenceInput,
   CONSTANTS.BASE_HOUSING_STOCK
 );

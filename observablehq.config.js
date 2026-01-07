@@ -5,8 +5,8 @@ export default {
 
   // The pages and sections in the sidebar.
   pages: [
-    {name: "Housing Demand Calculator", path: "/"},
-    {name: "Cohort-Based Projections", path: "/projections"}
+    {name: "ESRI projections", path: "/esri"},
+    {name: "Central bank projections", path: "/central-bank"}
   ],
 
   // Content to add to the head of the page, e.g. for a favicon:

@@ -6,7 +6,8 @@ import {
   type Cohort,
   type HeadshipRates,
   type PopulationByCohort,
-  type PopulationData
+  type PopulationData,
+  type HeadshipData
 } from "./cohort-calculations.js";
 import type { PopulationYear } from "../data/population-types.js";
 
@@ -24,10 +25,13 @@ function uniformPopulationYear(value: number): PopulationYear {
   return { total, cohorts };
 }
 
+function uniformHeadshipData(rate: number, years: number[]): HeadshipData {
+  const cohorts = uniformRates(rate);
+  return Object.fromEntries(years.map(year => [year, { cohorts }])) as HeadshipData;
+}
+
 describe("generateCohortTimeSeries", () => {
   it("calculates demand from household growth and obsolescence", () => {
-    const mockHeadshipRates = uniformRates(0.5);
-
     // Population grows by 1000 per cohort per year
     const mockPopulation: PopulationData = {
       2022: uniformPopulationYear(10000),
@@ -35,14 +39,15 @@ describe("generateCohortTimeSeries", () => {
       2024: uniformPopulationYear(12000),
     };
 
+    // Uniform 0.5 headship rate for all cohorts and years
+    const mockHeadshipData = uniformHeadshipData(0.5, [2022, 2023, 2024]);
+
     const obsolescenceRate = 0.01; // 1% for easy math
     const baseHousingStock = 100000;
 
     const result = generateCohortTimeSeries(
       mockPopulation,
-      mockHeadshipRates,
-      mockHeadshipRates, // UK rates same as current for simplicity
-      "current",
+      mockHeadshipData,
       obsolescenceRate,
       baseHousingStock
     );

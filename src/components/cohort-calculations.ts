@@ -7,16 +7,16 @@ import type {
   PopulationProjections,
   Scenario as MigrationScenario
 } from "../data/population-types.js";
+import type { HeadshipYear, HeadshipProjections } from "../data/headship-types.js";
 
 export { type Cohort, type CohortData, type PopulationProjections, type MigrationScenario };
+export { type HeadshipYear, type HeadshipProjections };
 
 export const CONSTANTS = {
   BASE_HOUSING_STOCK: 2300000,
   DEFAULT_OBSOLESCENCE: 0.0025,
   REFERENCE_52K: 52000,
   REFERENCE_33K: 33000,
-  FAST_CONVERGENCE: 11,
-  SLOW_CONVERGENCE: 26,
   BASE_YEAR: 2022,
   DEFAULT_START_YEAR: 2024,
   DEFAULT_END_YEAR: 2050
@@ -30,8 +30,9 @@ export const COHORTS = [
 export type HeadshipRates = Record<Cohort, number>;
 export type PopulationByCohort = CohortData;
 export type PopulationData = Record<number, PopulationYear>;
+export type HeadshipData = Record<number, HeadshipYear>;
 
-export type HeadshipScenario = "current" | "gradual" | "fast";
+export type HeadshipScenarioKey = "current" | "gradual" | "fast";
 
 export interface TimeSeriesPoint {
   year: number;
@@ -44,7 +45,7 @@ export interface TimeSeriesPoint {
 export interface Scenario {
   id: string;
   migration: MigrationScenario;
-  headship: HeadshipScenario;
+  headship: HeadshipScenarioKey;
   migrationLabel: string;
   headshipLabel: string;
   timeSeries: TimeSeriesPoint[];
@@ -54,53 +55,6 @@ export interface ScenarioRangePoint {
   year: number;
   min: number;
   max: number;
-}
-
-// Linear interpolation from current to UK rates over 20 years
-function interpolateHeadshipRates(
-  currentRates: HeadshipRates,
-  ukRates: HeadshipRates,
-  year: number,
-  convergencePeriod: number,
-): HeadshipRates {
-  const baseYear = CONSTANTS.BASE_YEAR;
-  const convergenceYear = baseYear + convergencePeriod;
-
-  if (year <= baseYear) {
-    return { ...currentRates };
-  }
-  if (year >= convergenceYear) {
-    return { ...ukRates };
-  }
-
-  const t = (year - baseYear) / (convergenceYear - baseYear);
-  const result = {} as HeadshipRates;
-
-  for (const cohort of COHORTS) {
-    const current = currentRates[cohort];
-    const target = ukRates[cohort];
-    result[cohort] = current + t * (target - current);
-  }
-
-  return result;
-}
-
-function getHeadshipRatesForYear(
-  headshipScenario: HeadshipScenario,
-  currentRates: HeadshipRates,
-  ukRates: HeadshipRates,
-  year: number
-): HeadshipRates {
-  switch (headshipScenario) {
-    case "current":
-      return { ...currentRates };
-    case "gradual":
-      return interpolateHeadshipRates(currentRates, ukRates, year, CONSTANTS.SLOW_CONVERGENCE);
-    case "fast":
-      return interpolateHeadshipRates(currentRates, ukRates, year, CONSTANTS.FAST_CONVERGENCE);
-    default:
-      return { ...currentRates };
-  }
 }
 
 export function calculateTotalHouseholds(
@@ -121,11 +75,13 @@ export function calculateTotalHouseholds(
   return total;
 }
 
+/**
+ * Generate time series using pre-computed headship rates
+ * headshipData uses unified format: { [year]: { cohorts: {...} } }
+ */
 export function generateCohortTimeSeries(
   populationData: PopulationData,
-  currentHeadshipRates: HeadshipRates,
-  ukHeadshipRates: HeadshipRates,
-  headshipScenario: HeadshipScenario,
+  headshipData: HeadshipData,
   obsolescenceRate: number,
   baseHousingStock: number
 ): TimeSeriesPoint[] {
@@ -136,16 +92,11 @@ export function generateCohortTimeSeries(
   let prevHouseholds: number | null = null;
 
   for (const year of years) {
-    const headshipRates = getHeadshipRatesForYear(
-      headshipScenario,
-      currentHeadshipRates,
-      ukHeadshipRates,
-      year
-    );
+    const headshipRates = headshipData[year]?.cohorts as HeadshipRates | undefined;
 
     const totalHouseholds = calculateTotalHouseholds(
       populationData[year].cohorts,
-      headshipRates
+      headshipRates || ({} as HeadshipRates)
     );
 
     if (prevHouseholds !== null) {
@@ -180,28 +131,22 @@ export function generateCohortTimeSeries(
 
 export function generateAllCohortScenarios(
   populationProjections: PopulationProjections,
-  currentHeadshipRates: HeadshipRates,
-  ukHeadshipRates: HeadshipRates,
+  headshipProjections: HeadshipProjections,
   obsolescenceRate: number,
   baseHousingStock: number
 ): Scenario[] {
   const scenarios: Scenario[] = [];
   const migrationKeys: MigrationScenario[] = ["M1", "M2", "M3"];
-  const headshipKeys: HeadshipScenario[] = ["current", "gradual", "fast"];
-
-  const headshipLabels: Record<HeadshipScenario, string> = {
-    current: "Irish Current",
-    gradual: "Gradual Convergence",
-    fast: "Fast Convergence"
-  };
+  const headshipKeys: HeadshipScenarioKey[] = ["current", "gradual", "fast"];
 
   for (const migKey of migrationKeys) {
     for (const headKey of headshipKeys) {
+      const headshipScenario = headshipProjections[headKey];
+      if (!headshipScenario) continue;
+
       const timeSeries = generateCohortTimeSeries(
         populationProjections[migKey].data,
-        currentHeadshipRates,
-        ukHeadshipRates,
-        headKey,
+        headshipScenario.data,
         obsolescenceRate,
         baseHousingStock
       );
@@ -211,7 +156,7 @@ export function generateAllCohortScenarios(
         migration: migKey,
         headship: headKey,
         migrationLabel: populationProjections[migKey].label,
-        headshipLabel: headshipLabels[headKey],
+        headshipLabel: headshipScenario.label,
         timeSeries
       });
     }
