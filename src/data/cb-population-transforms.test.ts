@@ -50,15 +50,15 @@ describe("ageToCohort", () => {
     assert.strictEqual(ageToCohort(19), "15-19");
   });
 
-  test("maps ages 80-84 to '80-84'", () => {
-    assert.strictEqual(ageToCohort(80), "80-84");
-    assert.strictEqual(ageToCohort(84), "80-84");
+  test("maps ages 30-34 to '30-34'", () => {
+    assert.strictEqual(ageToCohort(30), "30-34");
+    assert.strictEqual(ageToCohort(34), "30-34");
   });
 
-  test("maps ages 85+ to '85+'", () => {
-    assert.strictEqual(ageToCohort(85), "85+");
-    assert.strictEqual(ageToCohort(90), "85+");
-    assert.strictEqual(ageToCohort(99), "85+");
+  test("maps ages 65+ to '65+'", () => {
+    assert.strictEqual(ageToCohort(65), "65+");
+    assert.strictEqual(ageToCohort(90), "65+");
+    assert.strictEqual(ageToCohort(99), "65+");
   });
 });
 
@@ -113,7 +113,7 @@ describe("parseRow", () => {
     assert.strictEqual(parseRow(values), null);
   });
 
-  test("handles 99 years and over as 85+ cohort", () => {
+  test("handles 99 years and over as 65+ cohort", () => {
     const values = [
       "Population Projections based on Census 2022",
       "2057",
@@ -125,7 +125,7 @@ describe("parseRow", () => {
     ];
     const result = parseRow(values);
     assert.ok(result !== null);
-    assert.strictEqual(result.cohort, "85+");
+    assert.strictEqual(result.cohort, "65+");
     assert.strictEqual(result.scenario, "M2");
   });
 });
@@ -193,14 +193,6 @@ describe("filterHouseholdCohorts", () => {
     assert.strictEqual(result.M1[2022]["10-14"], undefined);
     assert.strictEqual(result.M1[2022]["15-19"], 400);
     assert.strictEqual(result.M1[2022]["20-24"], 500);
-  });
-
-  test("HOUSEHOLD_COHORTS contains expected cohorts", () => {
-    const cohorts = HOUSEHOLD_COHORTS as readonly string[];
-    assert.ok(cohorts.includes("15-19"));
-    assert.ok(cohorts.includes("85+"));
-    assert.ok(!cohorts.includes("0-4"));
-    assert.ok(!cohorts.includes("10-14"));
   });
 });
 

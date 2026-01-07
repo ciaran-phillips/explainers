@@ -1,41 +1,69 @@
 // Cohort-based housing demand calculation functions
 
-// Constants
 export const CONSTANTS = {
   BASE_HOUSING_STOCK: 2300000,
   DEFAULT_OBSOLESCENCE: 0.0025,
   REFERENCE_52K: 52000,
   REFERENCE_33K: 33000,
-  CONVERGENCE_YEARS: 20,
+  FAST_CONVERGENCE: 11,
+  SLOW_CONVERGENCE: 26,
   BASE_YEAR: 2022,
   DEFAULT_START_YEAR: 2024,
   DEFAULT_END_YEAR: 2050
-};
+} as const;
 
-// Cohorts in order for consistent iteration
 export const COHORTS = [
   "15-19", "20-24", "25-29", "30-34", "35-39", "40-44",
-  "45-49", "50-54", "55-59", "60-64", "65-69", "70-74",
-  "75-79", "80-84", "85+"
-];
+  "45-49", "50-54", "55-59", "60-64", "65+"
+] as const;
 
-// Grouped cohorts for visualization (6 groups instead of 15)
-export const COHORT_GROUPS = {
-  "15-24": ["15-19", "20-24"],
-  "25-34": ["25-29", "30-34"],
-  "35-44": ["35-39", "40-44"],
-  "45-54": ["45-49", "50-54"],
-  "55-64": ["55-59", "60-64"],
-  "65+": ["65-69", "70-74", "75-79", "80-84", "85+"]
-};
+export type Cohort = typeof COHORTS[number];
 
-/**
- * Interpolate headship rates for gradual convergence
- * Linear interpolation from current to UK rates over 20 years
- */
-export function interpolateHeadshipRates(currentRates, ukRates, year) {
+export type HeadshipRates = Record<Cohort, number>;
+export type PopulationByCohort = Record<Cohort, number>;
+export type PopulationData = Record<number, PopulationByCohort>;
+
+export type HeadshipScenario = "current" | "gradual" | "fast";
+export type MigrationScenario = "M1" | "M2" | "M3";
+
+export interface TimeSeriesPoint {
+  year: number;
+  demand: number;
+  householdGrowth: number;
+  obsolescence: number;
+  totalHouseholds: number;
+}
+
+export interface Scenario {
+  id: string;
+  migration: MigrationScenario;
+  headship: HeadshipScenario;
+  migrationLabel: string;
+  headshipLabel: string;
+  timeSeries: TimeSeriesPoint[];
+}
+
+export interface ScenarioRangePoint {
+  year: number;
+  min: number;
+  max: number;
+}
+
+export interface PopulationProjections {
+  M1: { label: string; data: PopulationData };
+  M2: { label: string; data: PopulationData };
+  M3: { label: string; data: PopulationData };
+}
+
+// Linear interpolation from current to UK rates over 20 years
+function interpolateHeadshipRates(
+  currentRates: HeadshipRates,
+  ukRates: HeadshipRates,
+  year: number,
+  convergencePeriod: number,
+): HeadshipRates {
   const baseYear = CONSTANTS.BASE_YEAR;
-  const convergenceYear = baseYear + CONSTANTS.CONVERGENCE_YEARS;
+  const convergenceYear = baseYear + convergencePeriod;
 
   if (year <= baseYear) {
     return { ...currentRates };
@@ -44,9 +72,8 @@ export function interpolateHeadshipRates(currentRates, ukRates, year) {
     return { ...ukRates };
   }
 
-  // Linear interpolation
   const t = (year - baseYear) / (convergenceYear - baseYear);
-  const result = {};
+  const result = {} as HeadshipRates;
 
   for (const cohort of COHORTS) {
     const current = currentRates[cohort];
@@ -57,74 +84,53 @@ export function interpolateHeadshipRates(currentRates, ukRates, year) {
   return result;
 }
 
-/**
- * Get headship rates for a given year and scenario
- */
-export function getHeadshipRatesForYear(
-  headshipScenario,
-  currentRates,
-  ukRates,
-  year
-) {
+function getHeadshipRatesForYear(
+  headshipScenario: HeadshipScenario,
+  currentRates: HeadshipRates,
+  ukRates: HeadshipRates,
+  year: number
+): HeadshipRates {
   switch (headshipScenario) {
     case "current":
       return { ...currentRates };
     case "gradual":
-      return interpolateHeadshipRates(currentRates, ukRates, year);
-    case "uk":
-      return { ...ukRates };
+      return interpolateHeadshipRates(currentRates, ukRates, year, CONSTANTS.SLOW_CONVERGENCE);
+    case "fast":
+      return interpolateHeadshipRates(currentRates, ukRates, year, CONSTANTS.FAST_CONVERGENCE);
     default:
       return { ...currentRates };
   }
 }
 
-/**
- * Calculate total households for a given year across all cohorts
- */
-export function calculateTotalHouseholds(populationByCohort, headshipRates) {
+export function calculateTotalHouseholds(
+  populationByCohort: PopulationByCohort,
+  headshipRates: HeadshipRates
+) {
   let total = 0;
-  const byCohort = {};
 
   for (const cohort of COHORTS) {
     const population = populationByCohort[cohort] || 0;
     const rate = headshipRates[cohort] || 0;
     const households = population * rate;
-    byCohort[cohort] = households;
     total += households;
   }
 
-  return { total, byCohort };
+  return total;
 }
 
-/**
- * Calculate households grouped by age bands
- */
-export function calculateHouseholdsByGroup(byCohort) {
-  const byGroup = {};
-
-  for (const [groupName, cohorts] of Object.entries(COHORT_GROUPS)) {
-    byGroup[groupName] = cohorts.reduce((sum, cohort) => sum + (byCohort[cohort] || 0), 0);
-  }
-
-  return byGroup;
-}
-
-/**
- * Generate full time series for a scenario combination
- */
 export function generateCohortTimeSeries(
-  populationData,
-  currentHeadshipRates,
-  ukHeadshipRates,
-  headshipScenario,
-  obsolescenceRate,
-  baseHousingStock
-) {
+  populationData: PopulationData,
+  currentHeadshipRates: HeadshipRates,
+  ukHeadshipRates: HeadshipRates,
+  headshipScenario: HeadshipScenario,
+  obsolescenceRate: number,
+  baseHousingStock: number
+): TimeSeriesPoint[] {
   const years = Object.keys(populationData).map(Number).sort((a, b) => a - b);
-  const results = [];
+  const results: TimeSeriesPoint[] = [];
 
   let housingStock = baseHousingStock;
-  let prevHouseholds = null;
+  let prevHouseholds: number | null = null;
 
   for (const year of years) {
     const headshipRates = getHeadshipRatesForYear(
@@ -134,71 +140,55 @@ export function generateCohortTimeSeries(
       year
     );
 
-    const { total: totalHouseholds, byCohort } = calculateTotalHouseholds(
+    const totalHouseholds = calculateTotalHouseholds(
       populationData[year],
       headshipRates
     );
 
-    const byGroup = calculateHouseholdsByGroup(byCohort);
 
     if (prevHouseholds !== null) {
+      console.log(totalHouseholds)
       const householdGrowth = totalHouseholds - prevHouseholds;
       const obsolescence = housingStock * obsolescenceRate;
       const demand = householdGrowth + obsolescence;
-
-      // Calculate growth by group (for stacked area chart)
-      const prevByGroup = results[results.length - 1]?.byGroup || {};
-      const growthByGroup = {};
-      for (const group of Object.keys(COHORT_GROUPS)) {
-        growthByGroup[group] = (byGroup[group] || 0) - (prevByGroup[group] || 0);
-      }
 
       results.push({
         year,
         demand,
         householdGrowth,
         obsolescence,
-        totalHouseholds,
-        byGroup,
-        growthByGroup
+        totalHouseholds
       });
 
       housingStock += demand;
     } else {
-      // First year - just record state, no demand calculation
       results.push({
         year,
         demand: 0,
         householdGrowth: 0,
         obsolescence: 0,
-        totalHouseholds,
-        byGroup,
-        growthByGroup: {}
+        totalHouseholds
       });
     }
 
     prevHouseholds = totalHouseholds;
   }
 
-  // Remove the first year (base year with no demand)
   return results.slice(1);
 }
 
-/**
- * Pre-calculate all 9 scenario combinations
- */
 export function generateAllCohortScenarios(
-  populationProjections,
-  currentHeadshipRates,
-  ukHeadshipRates,
-  obsolescenceRate,
-  baseHousingStock
-) {
-  const scenarios = [];
-  const migrationKeys = ["M1", "M2", "M3"];
-  const headshipKeys = ["current", "gradual", "uk"];
+  populationProjections: PopulationProjections,
+  currentHeadshipRates: HeadshipRates,
+  ukHeadshipRates: HeadshipRates,
+  obsolescenceRate: number,
+  baseHousingStock: number
+): Scenario[] {
+  const scenarios: Scenario[] = [];
+  const migrationKeys: MigrationScenario[] = ["M1", "M2", "M3"];
+  const headshipKeys: HeadshipScenario[] = ["current", "gradual", "uk"];
 
-  const headshipLabels = {
+  const headshipLabels: Record<HeadshipScenario, string> = {
     current: "Irish Current",
     gradual: "Gradual Convergence",
     uk: "UK Rates"
@@ -229,18 +219,15 @@ export function generateAllCohortScenarios(
   return scenarios;
 }
 
-/**
- * Get min/max range across scenarios for each year
- */
-export function getScenarioRange(allScenarios) {
-  const yearMap = new Map();
+export function getScenarioRange(allScenarios: Scenario[]): ScenarioRangePoint[] {
+  const yearMap = new Map<number, { min: number; max: number }>();
 
   for (const scenario of allScenarios) {
     for (const point of scenario.timeSeries) {
       if (!yearMap.has(point.year)) {
         yearMap.set(point.year, { min: Infinity, max: -Infinity });
       }
-      const range = yearMap.get(point.year);
+      const range = yearMap.get(point.year)!;
       range.min = Math.min(range.min, point.demand);
       range.max = Math.max(range.max, point.demand);
     }
@@ -251,26 +238,29 @@ export function getScenarioRange(allScenarios) {
     .sort((a, b) => a.year - b.year);
 }
 
-/**
- * Calculate average demand for a time period
- */
-export function calculatePeriodAverage(timeSeries, startYear, endYear) {
+export function calculatePeriodAverage(
+  timeSeries: TimeSeriesPoint[],
+  startYear: number,
+  endYear: number
+): number {
   const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
   if (filtered.length === 0) return 0;
   return filtered.reduce((sum, d) => sum + d.demand, 0) / filtered.length;
 }
 
-/**
- * Calculate total demand for a time period
- */
-export function calculatePeriodTotal(timeSeries, startYear, endYear) {
+export function calculatePeriodTotal(
+  timeSeries: TimeSeriesPoint[],
+  startYear: number,
+  endYear: number
+): number {
   const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
   return filtered.reduce((sum, d) => sum + d.demand, 0);
 }
 
-/**
- * Filter time series to a specific year range
- */
-export function filterTimeSeries(timeSeries, startYear, endYear) {
+export function filterTimeSeries(
+  timeSeries: TimeSeriesPoint[],
+  startYear: number,
+  endYear: number
+): TimeSeriesPoint[] {
   return timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
 }

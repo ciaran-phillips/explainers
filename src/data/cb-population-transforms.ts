@@ -38,8 +38,8 @@ export function parseAge(ageString: string): number | null {
  * Map a numeric age to a 5-year cohort string
  */
 export function ageToCohort(age: number): string {
-  if (age >= 85) {
-    return "85+";
+  if (age >= 65) {
+    return "65+";
   }
   const lowerBound = Math.floor(age / 5) * 5;
   const upperBound = lowerBound + 4;
@@ -106,8 +106,7 @@ export function aggregateByCohort(rows: (ParsedRow | null)[]): ScenarioData {
 // Cohorts that can form households (15+)
 export const HOUSEHOLD_COHORTS = [
   "15-19", "20-24", "25-29", "30-34", "35-39", "40-44",
-  "45-49", "50-54", "55-59", "60-64", "65-69", "70-74",
-  "75-79", "80-84", "85+"
+  "45-49", "50-54", "55-59", "60-64", "65+"
 ] as const;
 
 /**

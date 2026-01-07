@@ -5,8 +5,8 @@
     "clean": "rimraf src/.observablehq/cache",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test src/**/*.test.ts",
-    "build": "tsc --noEmit && observable build",
-    "dev": "tsc --noEmit && observable preview",
+    "build": "npx tsc --noEmit && observable build",
+    "dev": "npx tsc --noEmit && observable preview",
     "deploy": "observable deploy",
     "observable": "observable"
   },
@@ -20,7 +20,7 @@
     "@types/node": "^25.0.3",
     "rimraf": "^5.0.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^4.9.5"
   },
   "engines": {
     "node": ">=18"

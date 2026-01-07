@@ -20,27 +20,16 @@ import {
 // Import React components
 import { ProjectionChart } from "./components/ProjectionChart.js";
 import { ProjectionStats } from "./components/ProjectionStats.js";
-import { CohortBreakdownChart } from "./components/CohortBreakdownChart.js";
 import { ScenarioComparisonTable } from "./components/ScenarioComparisonTable.js";
+
+// Import Plot for charts
+import * as Plot from "npm:@observablehq/plot";
 ```
 
 ```js
 // Load data
 const populationByCohort = await FileAttachment("data/cb-population-by-cohort.json").json();
 const headshipRates = await FileAttachment("data/cb-headship-rates-by-cohort.json").json();
-```
-
-```js
-// Pre-calculate all 9 scenario combinations
-const allScenarios = generateAllCohortScenarios(
-  populationByCohort,
-  headshipRates.current.rates,
-  headshipRates.uk_convergence.rates,
-  CONSTANTS.DEFAULT_OBSOLESCENCE,
-  CONSTANTS.BASE_HOUSING_STOCK
-);
-
-const scenarioRange = getScenarioRange(allScenarios);
 ```
 
 <div class="grid grid-cols-4">
@@ -50,9 +39,9 @@ const scenarioRange = getScenarioRange(allScenarios);
 ```js
 // Migration scenario input
 const migrationOptions = [
-  {value: "M1", label: "Low Migration"},
+  {value: "M3", label: "Low Migration"},
   {value: "M2", label: "Baseline Migration"},
-  {value: "M3", label: "High Migration"}
+  {value: "M1", label: "High Migration"}
 ];
 const migrationInput = view(Inputs.radio(migrationOptions, {
   label: "Migration Scenario",
@@ -65,8 +54,8 @@ const migrationInput = view(Inputs.radio(migrationOptions, {
 // Headship scenario input
 const headshipOptions = [
   {value: "current", label: "Irish Current"},
-  {value: "gradual", label: "Gradual Convergence (20yr)"},
-  {value: "uk", label: "UK Rates"}
+  {value: "gradual", label: "Gradual convergence (until 2050)"},
+  {value: "fast", label: "Fast convergence (until 2035)"}
 ];
 const headshipInput = view(Inputs.radio(headshipOptions, {
   label: "Household Formation",
@@ -76,32 +65,9 @@ const headshipInput = view(Inputs.radio(headshipOptions, {
 ```
 
 ```js
-// Time range inputs
-const startYearInput = view(Inputs.range(
-  [2023, 2045],
-  {
-    label: "Start Year",
-    value: 2024,
-    step: 1
-  }
-));
-```
-
-```js
-const endYearInput = view(Inputs.range(
-  [2030, 2057],
-  {
-    label: "End Year",
-    value: 2050,
-    step: 1
-  }
-));
-```
-
-```js
 // Obsolescence rate input
-const obsolescenceInput = view(Inputs.range(
-  [0, 0.005],
+const obsolescenceInput = view(Inputs.radio(
+  [0, 0.0025, 0.005],
   {
     label: "Obsolescence Rate",
     value: 0.0025,
@@ -111,23 +77,34 @@ const obsolescenceInput = view(Inputs.range(
 ));
 ```
 
+<h4>Projected Population (15+)</h4>
+
+```js
+// Calculate total population by year for selected scenario
+const scenarioData = populationByCohort[migrationInput.value].data;
+const populationByYear = Object.entries(scenarioData).map(([year, cohorts]) => ({
+  year: +year,
+  population: Object.values(cohorts).reduce((sum, pop) => sum + pop, 0)
+})).sort((a, b) => a.year - b.year);
+
+display(Plot.plot({
+  height: 200,
+  marginLeft: 60,
+  x: { label: "Year" },
+  y: { label: "Population (millions)", transform: d => d / 1_000_000 },
+  marks: [
+    Plot.line(populationByYear, { x: "year", y: "population", stroke: "steelblue", strokeWidth: 2 }),
+    Plot.dot(populationByYear, { x: "year", y: "population", fill: "steelblue", r: 3 })
+  ]
+}));
+```
+
   </div>
   <div class="card grid-colspan-3">
 
 ```js
-// Find selected scenario
-const selectedScenarioId = `${migrationInput.value}-${headshipInput.value}`;
-const selectedScenario = allScenarios.find(s => s.id === selectedScenarioId);
-
-// Debug: show what we found
-display(`Selected: ${selectedScenarioId}, Found: ${selectedScenario ? 'yes' : 'no'}`);
-```
-
-```js
 // Recalculate if obsolescence rate changed from default
-const selectedTimeSeries = (selectedScenario && obsolescenceInput === 0.0025)
-  ? selectedScenario.timeSeries
-  : generateCohortTimeSeries(
+const timeSeries = generateCohortTimeSeries(
       populationByCohort[migrationInput.value].data,
       headshipRates.current.rates,
       headshipRates.uk_convergence.rates,
@@ -139,12 +116,11 @@ const selectedTimeSeries = (selectedScenario && obsolescenceInput === 0.0025)
 
 ```js
 // Test with simple Plot chart instead of JSX
-import * as Plot from "npm:@observablehq/plot";
-
-const testData = selectedTimeSeries?.slice(0, 10) || [];
+const testData = timeSeries?.slice(0, 16) || [];
 display(Plot.plot({
+  y: { domain: [0, Math.max(...timeSeries.map(d => d.demand))] },
   marks: [
-    Plot.line(testData, {x: "year", y: "demand"})
+    Plot.line(timeSeries?.slice(0, 18), {x: "year", y: "demand"})
   ]
 }));
 ```
@@ -164,11 +140,6 @@ display(`Migration: ${migrationInput.value}, Headship: ${headshipInput.value}`);
 <div class="grid grid-cols-2">
   <div class="card">
     <h3>Household Formation by Age Group</h3>
-
-```js
-// Debug: cohort breakdown placeholder
-display(`Years: ${startYearInput} - ${endYearInput}`);
-```
 
   </div>
   <div class="card">
