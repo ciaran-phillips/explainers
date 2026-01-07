@@ -1,35 +1,57 @@
 import * as React from "npm:react";
 import * as Plot from "npm:@observablehq/plot";
 
-// Convert raw demand (in thousands) to units
-const toUnits = (val) => val * 1000;
-
 function calculatePeriodAverage(timeSeries, startYear, endYear) {
   const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
   if (filtered.length === 0) return 0;
   return filtered.reduce((sum, d) => sum + d.demand, 0) / filtered.length;
 }
 
-export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
+/**
+ * Reusable demand chart component
+ * @param selectedScenario - Time series data with {year, demand}
+ * @param scenarioRange - Range data with {year, min, max}
+ * @param width - Chart width
+ * @param yearDomain - [startYear, endYear] for x-axis (default: derived from data)
+ * @param scale - Multiplier for demand values (default: 1, use 1000 for ESRI data in thousands)
+ * @param periodBreak - Year to split period averages (default: midpoint of range)
+ */
+export function DemandChart({
+  selectedScenario,
+  scenarioRange,
+  width = 800,
+  yearDomain,
+  scale = 1,
+  periodBreak
+}) {
   const containerRef = React.useRef(null);
 
-  // Convert data to units for display
+  // Derive year domain from data if not provided
+  const years = selectedScenario.map(d => d.year);
+  const [startYear, endYear] = yearDomain || [Math.min(...years), Math.max(...years)];
+  const midYear = periodBreak || Math.round((startYear + endYear) / 2);
+
+  // Convert data to display units
   const selectedData = selectedScenario.map(d => ({
     year: d.year,
-    demand: toUnits(d.demand)
+    demand: d.demand * scale
   }));
 
   const rangeData = scenarioRange.map(d => ({
     year: d.year,
-    min: toUnits(d.min),
-    max: toUnits(d.max)
+    min: d.min * scale,
+    max: d.max * scale
   }));
 
-  const avg2023_2030 = toUnits(calculatePeriodAverage(selectedScenario, 2023, 2030));
-  const avg2030_2040 = toUnits(calculatePeriodAverage(selectedScenario, 2031, 2040));
+  const avgFirstPeriod = calculatePeriodAverage(selectedScenario, startYear, midYear) * scale;
+  const avgSecondPeriod = calculatePeriodAverage(selectedScenario, midYear + 1, endYear) * scale;
 
   React.useEffect(() => {
     if (!containerRef.current) return;
+
+    // Calculate label positions for period averages
+    const firstPeriodLabelX = Math.round((startYear + midYear) / 2);
+    const secondPeriodLabelX = Math.round((midYear + endYear) / 2);
 
     const plot = Plot.plot({
       width,
@@ -41,7 +63,7 @@ export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
       x: {
         label: "Year",
         tickFormat: d => d.toString(),
-        domain: [2023, 2040]
+        domain: [startYear, endYear]
       },
       y: {
         label: "Annual Housing Demand (units)",
@@ -59,24 +81,24 @@ export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
           fillOpacity: 0.7
         }),
 
-        // 2030 divider line
-        Plot.ruleX([2030], {
+        // Period divider line
+        Plot.ruleX([midYear], {
           stroke: "#9ca3af",
           strokeDasharray: "4,4",
           strokeWidth: 1
         }),
 
         // Average lines for periods
-        Plot.ruleY([avg2023_2030], {
-          x1: 2023,
-          x2: 2030,
+        Plot.ruleY([avgFirstPeriod], {
+          x1: startYear,
+          x2: midYear,
           stroke: "#10b981",
           strokeDasharray: "2,4",
           strokeWidth: 2
         }),
-        Plot.ruleY([avg2030_2040], {
-          x1: 2030,
-          x2: 2040,
+        Plot.ruleY([avgSecondPeriod], {
+          x1: midYear,
+          x2: endYear,
           stroke: "#10b981",
           strokeDasharray: "2,4",
           strokeWidth: 2
@@ -100,7 +122,7 @@ export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
         }),
 
         // Average annotations
-        Plot.text([{ x: 2026.5, y: avg2023_2030 }], {
+        Plot.text([{ x: firstPeriodLabelX, y: avgFirstPeriod }], {
           x: "x",
           y: "y",
           text: d => `Avg: ${Math.round(d.y).toLocaleString()}`,
@@ -108,7 +130,7 @@ export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
           fill: "#059669",
           fontSize: 11
         }),
-        Plot.text([{ x: 2035, y: avg2030_2040 }], {
+        Plot.text([{ x: secondPeriodLabelX, y: avgSecondPeriod }], {
           x: "x",
           y: "y",
           text: d => `Avg: ${Math.round(d.y).toLocaleString()}`,
@@ -123,7 +145,7 @@ export function DemandChart({ selectedScenario, scenarioRange, width = 800 }) {
     containerRef.current.appendChild(plot);
 
     return () => plot.remove();
-  }, [selectedScenario, scenarioRange, width]);
+  }, [selectedScenario, scenarioRange, width, startYear, endYear, midYear, scale]);
 
   return <div ref={containerRef} className="demand-chart" />;
 }

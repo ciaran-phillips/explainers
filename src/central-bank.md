@@ -10,17 +10,13 @@ An interactive tool to explore Ireland's projected housing demand from 2022 to 2
 // Import calculation functions
 import {
   CONSTANTS,
-  COHORT_GROUPS,
   generateCohortTimeSeries,
   generateAllCohortScenarios,
-  getScenarioRange,
-  filterTimeSeries
+  getScenarioRange
 } from "./components/cohort-calculations.js";
 
 // Import React components
-import { ProjectionChart } from "./components/ProjectionChart.js";
-import { ProjectionStats } from "./components/ProjectionStats.js";
-import { ScenarioComparisonTable } from "./components/ScenarioComparisonTable.js";
+import { DemandChart } from "./components/DemandChart.js";
 
 // Import Plot for charts
 import * as Plot from "npm:@observablehq/plot";
@@ -30,6 +26,19 @@ import * as Plot from "npm:@observablehq/plot";
 // Load data
 const populationByCohort = await FileAttachment("data/cb-population-by-cohort.json").json();
 const headshipRates = await FileAttachment("data/cb-headship-rates-by-cohort.json").json();
+```
+
+```js
+// Pre-calculate all scenarios for range display
+const allScenarios = generateAllCohortScenarios(
+  populationByCohort,
+  headshipRates.current.rates,
+  headshipRates.uk_convergence.rates,
+  CONSTANTS.DEFAULT_OBSOLESCENCE,
+  CONSTANTS.BASE_HOUSING_STOCK
+);
+
+const scenarioRange = getScenarioRange(allScenarios);
 ```
 
 <div class="grid grid-cols-4">
@@ -103,55 +112,30 @@ display(Plot.plot({
   <div class="card grid-colspan-3">
 
 ```js
-// Recalculate if obsolescence rate changed from default
+// Generate time series for selected scenario
 const timeSeries = generateCohortTimeSeries(
-      populationByCohort[migrationInput.value].data,
-      headshipRates.current.rates,
-      headshipRates.uk_convergence.rates,
-      headshipInput.value,
-      obsolescenceInput,
-      CONSTANTS.BASE_HOUSING_STOCK
-    );
+  populationByCohort[migrationInput.value].data,
+  headshipRates.current.rates,
+  headshipRates.uk_convergence.rates,
+  headshipInput.value,
+  obsolescenceInput,
+  CONSTANTS.BASE_HOUSING_STOCK
+);
 ```
 
-```js
-// Test with simple Plot chart instead of JSX
-const testData = timeSeries?.slice(0, 16) || [];
-display(Plot.plot({
-  y: { domain: [0, Math.max(...timeSeries.map(d => d.demand))] },
-  marks: [
-    Plot.line(timeSeries?.slice(0, 18), {x: "year", y: "demand"})
-  ]
-}));
-```
-
-  </div>
-</div>
-
-<div class="card">
-
-```js
-// Debug stats
-display(`Migration: ${migrationInput.value}, Headship: ${headshipInput.value}`);
-```
-
-</div>
-
-<div class="grid grid-cols-2">
-  <div class="card">
-    <h3>Household Formation by Age Group</h3>
-
-  </div>
-  <div class="card">
-    <h3>Scenario Comparison</h3>
-
-```js
-// Debug: scenario count
-display(`Total scenarios: ${allScenarios?.length ?? 0}`);
+```jsx
+display(<DemandChart
+  selectedScenario={timeSeries}
+  scenarioRange={scenarioRange}
+  width={width}
+  yearDomain={[2023, 2050]}
+  periodBreak={2035}
+/>)
 ```
 
   </div>
 </div>
+
 
 ---
 
