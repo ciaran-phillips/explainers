@@ -5,6 +5,7 @@ export default {
 
   // The pages and sections in the sidebar.
   pages: [
+    {name: "Combined", path: "/combined"},
     {name: "ESRI projections", path: "/esri"},
     {name: "Central bank projections", path: "/central-bank"}
   ],
@@ -15,8 +16,10 @@ export default {
   // The path to the source root.
   root: "src",
 
+  // Use the light theme for a clean, editorial appearance
+  theme: "light",
+
   // Some additional configuration options and their defaults:
-  // theme: "default", // try "light", "dark", "slate", etc.
   // header: "", // what to show in the header (HTML)
   // footer: "Built with Observable.", // what to show in the footer (HTML)
   // sidebar: true, // whether to show the sidebar
