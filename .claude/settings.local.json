@@ -15,7 +15,9 @@
       "Bash(node -e:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(grep:*)",
+      "Bash(npm run generate-data:*)"
     ]
   }
 }

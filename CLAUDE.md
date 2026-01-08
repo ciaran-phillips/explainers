@@ -4,47 +4,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project: Housing Need
 
-This is an [Observable Framework](https://observablehq.com/framework/) project, used to visualise and explore the amount of housing needed in Ireland in the coming years. Based on ESRI Report RS190 methodology.
+A Vite + React + TypeScript application for visualizing and exploring housing demand projections in Ireland. Based on ESRI Report RS190 methodology and Central Bank cohort-based analysis.
 
 ## Build and Development Commands
 
-| Command              | Description                              |
-| -------------------- | ---------------------------------------- |
-| `npm install`        | Install or reinstall dependencies        |
-| `npm run dev`        | Start local preview server (port 3000)   |
-| `npm run build`      | Build static site, generating `./dist`   |
-| `npm run deploy`     | Deploy app to Observable                 |
-| `npm run clean`      | Clear the local data loader cache        |
+| Command              | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `npm install`        | Install or reinstall dependencies              |
+| `npm run dev`        | Start Vite dev server                          |
+| `npm run build`      | Generate data + type check + build for production |
+| `npm run preview`    | Preview production build locally               |
+| `npm run generate-data` | Regenerate data files from source CSV/JSON  |
+| `npm run typecheck`  | Run TypeScript type checking                   |
+| `npm run clean`      | Clear generated data files                     |
 
-**Important:** Run `npm run clean` when data loaders change to clear cached output.
+**Important:** Run `npm run generate-data` when source data files change.
 
 ## Project Structure
 
 ```
-src/
-├── index.md                    # Home page - aggregate demand calculator
-├── projections.md              # Cohort-based projections page
-├── data/
-│   ├── scenarios.json          # Scenario definitions and constants
-│   ├── population_by_cohort.csv # CSO population projections (M1/M2/M3)
-│   ├── population-by-cohort.json.js    # Data loader for CSV
-│   ├── population-projections.json.js  # Aggregate population loader
-│   ├── headship-rates.json.js          # Aggregate headship rates loader
-│   └── headship-rates-by-cohort.json   # Age-specific headship rates
-└── components/
-    ├── calculations.js         # Core demand calculation functions
-    ├── cohort-calculations.js  # Age-cohort-based calculations
-    ├── DemandChart.jsx         # Main chart (index page)
-    ├── ProjectionChart.jsx     # Projection chart (projections page)
-    ├── ProjectionStats.jsx     # Summary statistics component
-    ├── CohortBreakdownChart.jsx # Stacked area by age group
-    └── ScenarioComparisonTable.jsx # Scenario comparison table
+housing-need/
+├── index.html                  # Vite entry HTML
+├── vite.config.ts              # Vite configuration
+├── scripts/
+│   └── generate-data.ts        # Build script for data generation
+├── public/
+│   └── data/                   # Generated JSON files (from build)
+└── src/
+    ├── main.tsx                # React entry point
+    ├── App.tsx                 # Router and layout
+    ├── index.css               # Global styles
+    ├── pages/
+    │   ├── EsriPage.tsx        # ESRI model calculator
+    │   ├── CentralBankPage.tsx # Central Bank cohort projections
+    │   └── CombinedPage.tsx    # Combined view
+    ├── components/
+    │   ├── calculations.ts     # ESRI calculation functions
+    │   ├── cohort-calculations.ts  # Cohort-based calculations
+    │   ├── DemandChart.tsx     # Main demand chart
+    │   ├── BreakdownChart.tsx  # Stacked area breakdown
+    │   ├── SummaryStats.tsx    # Summary statistics
+    │   └── ComparisonTable.tsx # Scenario comparison
+    ├── data/
+    │   ├── population-types.ts # Population type definitions
+    │   ├── headship-types.ts   # Headship rate types
+    │   ├── cb-population-transforms.ts # CSV transforms
+    │   ├── esri-scenarios.json # ESRI scenario definitions
+    │   └── cb-population-projections-all-years.csv  # CSO data
+    ├── hooks/
+    │   └── useResizeObserver.ts # Responsive width hook
+    └── lib/
+        └── dataLoader.ts       # Typed data fetching utilities
 ```
 
 ## Pages
 
-- **`/`** (index.md) - Housing Demand Calculator with aggregate population data
-- **`/projections`** (projections.md) - Cohort-based projections with age-specific headship rates
+- **`/`** and **`/combined`** - Combined view with model toggle
+- **`/esri`** - ESRI model housing demand calculator
+- **`/central-bank`** - Central Bank cohort-based projections
 
 ## Key Concepts
 
@@ -58,43 +75,25 @@ Annual Housing Demand = Household Growth + Obsolescence
 - **Headship rates**: Proportion of each age group heading a household
 - **Obsolescence**: Annual replacement rate of housing stock (default 0.25%)
 
-## Observable Framework Patterns
+### Data Flow
+1. Source data: CSV files and JSON configs in `src/data/`
+2. Build script: `scripts/generate-data.ts` transforms source data
+3. Output: JSON files in `public/data/`
+4. Runtime: Pages fetch from `/data/*.json`
 
-### Inputs with Objects
-When using `Inputs.radio()` with object arrays, access the selected value via `.value`:
-```js
-const options = [{value: "M1", label: "Low"}, {value: "M2", label: "Baseline"}];
-const input = view(Inputs.radio(options, {value: options[1], format: d => d.label}));
-// Use: input.value (not input directly)
-```
+## Development Patterns
 
-### Data Loaders
-Files ending in `.json.js` or `.json.ts` are data loaders that run at build time. Output JSON via:
-```js
-process.stdout.write(JSON.stringify(data));
-```
-
-### JSX Components
-React components are defined in files using the `.jsx` extension, but are imported with the `.js` extension in markdown. This is because they are automatically transpiled to .js at build time, and these imports are executed at runtime Remember that to use jsx in markdown you also need to use a jsx code block rather than a js block. Example:
-
-```jsx
-import { MyComponent } from "./components/MyComponent.jsx";
-display(<MyComponent prop={value} />)
-```
-
-## General development patterns
-
-### Types 
-
-In general, new code should be written in typescript, not plain javascript. Complex types should be named rather than specified inline. 
-
-Functions returning primitives can use implicit return types. Functions returning objects should have typed return values
+### Types
+New code should be written in TypeScript. Complex types should be named rather than specified inline. Functions returning primitives can use implicit return types; functions returning objects should have typed return values.
 
 ### Comments
-
-Simple functions don't need comments unless the functionn seems non-obvious. Prioritize readable code over explaining the code. Function comments should mostly be a single line specifying the purpose of the function, especially if the _why_ of the code is unclear. We don't need function comments to document every parameter and return value - our type definitions do most of that work for us 
+Simple functions don't need comments. Prioritize readable code. Function comments should be a single line explaining _why_, not documenting parameters (types do that).
 
 ### Styling
+CSS is in `src/index.css`. Use specific class names rather than nested selectors.
 
-CSS should be written in dedicated CSS files and not written within our markdown pages. We should keep our CSS flat through the use of specific classnames rather than relying on nested classes/components
+### Charts
+Uses `@observablehq/plot` for charting. Components use `useRef` and `useEffect` to mount Plot visualizations.
 
+### State Management
+Pages use React `useState` for form inputs and `useMemo` for derived calculations. Data is fetched via `useEffect` on mount.

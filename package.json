@@ -2,25 +2,38 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "clean": "rimraf src/.observablehq/cache",
+    "dev": "npm run generate-data && vite",
+    "build": "npm run generate-data && tsc && vite build",
+    "preview": "vite preview",
+    "generate-data": "tsx scripts/generate-data.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test src/**/*.test.ts",
-    "build": "npx tsc --noEmit && observable build",
-    "dev": "npx tsc --noEmit && observable preview",
-    "deploy": "observable deploy",
-    "observable": "observable"
+    "clean": "rimraf public/data"
   },
   "dependencies": {
-    "@observablehq/framework": "^1.13.3",
+    "@observablehq/plot": "^0.6.17",
+    "@tailwindcss/cli": "^4.1.18",
+    "@untitledui/icons": "^0.0.19",
     "d3-dsv": "^3.0.1",
     "d3-time-format": "^4.1.0",
-    "react": "^19.2.3"
+    "react": "^19.2.3",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.0",
+    "react-aria-components": "^1.14.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18",
+    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-react-aria-components": "^2.0.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
     "rimraf": "^5.0.5",
     "tsx": "^4.21.0",
-    "typescript": "^4.9.5"
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
   },
   "engines": {
     "node": ">=18"

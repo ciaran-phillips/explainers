@@ -6,8 +6,8 @@ import type {
   PopulationYear,
   PopulationProjections,
   Scenario as MigrationScenario
-} from "../data/population-types.js";
-import type { HeadshipYear, HeadshipProjections } from "../data/headship-types.js";
+} from "@/data/population-types";
+import type { HeadshipYear, HeadshipProjections } from "@/data/headship-types";
 
 export { type Cohort, type CohortData, type PopulationProjections, type MigrationScenario };
 export { type HeadshipYear, type HeadshipProjections };

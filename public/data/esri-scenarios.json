@@ -1,0 +1,64 @@
+{
+  "populationScenarios": {
+    "baseline": {
+      "label": "Baseline Migration",
+      "description": "+35k/year to 2030, +20k/year after",
+      "data": {
+        "2022": 5184.0,
+        "2030": 5699.9,
+        "2040": 6106.1
+      }
+    },
+    "high": {
+      "label": "High Migration",
+      "description": "+10k/year above baseline",
+      "data": {
+        "2022": 5184.0,
+        "2030": 5779.9,
+        "2040": 6286.1
+      }
+    },
+    "low": {
+      "label": "Low Migration",
+      "description": "-10k/year below baseline",
+      "data": {
+        "2022": 5184.0,
+        "2030": 5619.9,
+        "2040": 5926.1
+      }
+    }
+  },
+  "headshipScenarios": {
+    "current": {
+      "label": "Current Trends",
+      "description": "Household size: 2.8 → 2.6",
+      "data": {
+        "2022": 0.357,
+        "2040": 0.385
+      }
+    },
+    "falling": {
+      "label": "Falling Household Size",
+      "description": "Household size: 2.8 → 2.4 (European convergence)",
+      "data": {
+        "2022": 0.357,
+        "2040": 0.410
+      }
+    }
+  },
+  "obsolescenceScenarios": {
+    "low": {
+      "label": "Low (0.25%)",
+      "description": "Lower bound estimate",
+      "rate": 0.0025
+    },
+    "high": {
+      "label": "High (0.50%)",
+      "description": "Higher bound estimate",
+      "rate": 0.0050
+    }
+  },
+  "housingStock": {
+    "2022": 2112.1
+  }
+}

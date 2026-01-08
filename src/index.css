@@ -6,12 +6,26 @@
   --serif-font: 'Lora', Georgia, 'Times New Roman', serif;
   --text-color: #333;
   --text-color-muted: #666;
+
+  /* Replacements for Observable theme variables */
+  --theme-background-alt: #f9fafb;
+  --theme-foreground: #111827;
+  --theme-foreground-focus: #2563eb;
+  --theme-foreground-muted: #6b7280;
+  --theme-foreground-faint: #9ca3af;
+  --theme-foreground-faintest: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   font-family: var(--serif-font);
   color: var(--text-color);
   line-height: 1.7;
+  margin: 0;
+  padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -39,6 +53,62 @@ h3 {
 p {
   line-height: 1.7;
   margin-bottom: 1.25rem;
+}
+
+/* Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  padding: 1.5rem;
+  background: var(--theme-background-alt);
+  border-right: 1px solid var(--theme-foreground-faintest);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  padding: 0 1rem;
+}
+
+.sidebar a {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.sidebar a:hover {
+  background: var(--theme-foreground-faintest);
+}
+
+.sidebar a.active {
+  background: var(--theme-foreground-focus);
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem 3rem;
+  max-width: 1200px;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--theme-foreground-muted);
 }
 
 /* Shared Styles */
@@ -298,4 +368,47 @@ p {
 .scenario-table-cell-avg {
   font-weight: 600;
   background: var(--theme-background-alt);
+}
+
+/* Radio Groups */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.radio-group-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--theme-foreground-muted);
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+}
+
+/* Grid layouts for controls */
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--theme-background-alt);
+  border-radius: 8px;
+}
+
+/* Chart container */
+.chart-container {
+  margin: 2rem 0;
 }

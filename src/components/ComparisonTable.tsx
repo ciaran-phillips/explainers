@@ -1,52 +1,63 @@
-import * as React from "npm:react";
+import React from 'react'
 
-// Convert raw demand (in thousands) to units
-const toUnits = (val) => val * 1000;
-const formatNum = (n) => Math.round(n).toLocaleString();
-
-function calculatePeriodAverage(timeSeries, startYear, endYear) {
-  const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
-  if (filtered.length === 0) return 0;
-  return filtered.reduce((sum, d) => sum + d.demand, 0) / filtered.length;
+interface TimeSeriesPoint {
+  year: number
+  demand: number
 }
 
-function calculatePeriodTotal(timeSeries, startYear, endYear) {
-  const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear);
-  return filtered.reduce((sum, d) => sum + d.demand, 0);
+interface Scenario {
+  timeSeries: TimeSeriesPoint[]
 }
 
-export function ComparisonTable({ selectedScenario, allScenarios }) {
-  // Calculate for selected scenario
+interface ComparisonTableProps {
+  selectedScenario: TimeSeriesPoint[]
+  allScenarios: Scenario[]
+  scale?: number
+}
+
+const formatNum = (n: number): string => Math.round(n).toLocaleString()
+
+function calculatePeriodAverage(timeSeries: TimeSeriesPoint[], startYear: number, endYear: number): number {
+  const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear)
+  if (filtered.length === 0) return 0
+  return filtered.reduce((sum, d) => sum + d.demand, 0) / filtered.length
+}
+
+function calculatePeriodTotal(timeSeries: TimeSeriesPoint[], startYear: number, endYear: number): number {
+  const filtered = timeSeries.filter(d => d.year >= startYear && d.year <= endYear)
+  return filtered.reduce((sum, d) => sum + d.demand, 0)
+}
+
+export function ComparisonTable({ selectedScenario, allScenarios, scale = 1000 }: ComparisonTableProps) {
   const selected = {
-    avg2023_2030: toUnits(calculatePeriodAverage(selectedScenario, 2023, 2030)),
-    avg2030_2040: toUnits(calculatePeriodAverage(selectedScenario, 2031, 2040)),
-    total: toUnits(calculatePeriodTotal(selectedScenario, 2023, 2040))
-  };
+    avg2023_2030: calculatePeriodAverage(selectedScenario, 2023, 2030) * scale,
+    avg2030_2040: calculatePeriodAverage(selectedScenario, 2031, 2040) * scale,
+    total: calculatePeriodTotal(selectedScenario, 2023, 2040) * scale
+  }
 
-  // Calculate for all scenarios
   const allStats = allScenarios.map(s => ({
-    avg2023_2030: toUnits(calculatePeriodAverage(s.timeSeries, 2023, 2030)),
-    avg2030_2040: toUnits(calculatePeriodAverage(s.timeSeries, 2031, 2040)),
-    total: toUnits(calculatePeriodTotal(s.timeSeries, 2023, 2040))
-  }));
+    avg2023_2030: calculatePeriodAverage(s.timeSeries, 2023, 2030) * scale,
+    avg2030_2040: calculatePeriodAverage(s.timeSeries, 2031, 2040) * scale,
+    total: calculatePeriodTotal(s.timeSeries, 2023, 2040) * scale
+  }))
 
   const min = {
     avg2023_2030: Math.min(...allStats.map(s => s.avg2023_2030)),
     avg2030_2040: Math.min(...allStats.map(s => s.avg2030_2040)),
     total: Math.min(...allStats.map(s => s.total))
-  };
+  }
 
   const max = {
     avg2023_2030: Math.max(...allStats.map(s => s.avg2023_2030)),
     avg2030_2040: Math.max(...allStats.map(s => s.avg2030_2040)),
     total: Math.max(...allStats.map(s => s.total))
-  };
+  }
 
   const avg = {
     avg2023_2030: allStats.reduce((sum, s) => sum + s.avg2023_2030, 0) / allStats.length,
     avg2030_2040: allStats.reduce((sum, s) => sum + s.avg2030_2040, 0) / allStats.length,
     total: allStats.reduce((sum, s) => sum + s.total, 0) / allStats.length
-  };
+  }
 
   return (
     <div className="comparison-table-wrapper">
@@ -87,5 +98,5 @@ export function ComparisonTable({ selectedScenario, allScenarios }) {
         </tbody>
       </table>
     </div>
-  );
+  )
 }
