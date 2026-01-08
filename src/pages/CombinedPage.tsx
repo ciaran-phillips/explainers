@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { EsriPage } from './EsriPage'
 import { CentralBankPage } from './CentralBankPage'
 
-type ViewMode = 'esri' | 'central-bank' | 'side-by-side'
+type ViewMode = 'esri' | 'central-bank'
 
 export function CombinedPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('esri')
@@ -35,30 +35,10 @@ export function CombinedPage() {
             />
             Central Bank Model
           </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="viewMode"
-              checked={viewMode === 'side-by-side'}
-              onChange={() => setViewMode('side-by-side')}
-            />
-            Side by Side
-          </label>
         </div>
       </div>
 
-      {viewMode === 'side-by-side' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          <div>
-            <h2>ESRI Model</h2>
-            <EsriPage />
-          </div>
-          <div>
-            <h2>Central Bank Model</h2>
-            <CentralBankPage />
-          </div>
-        </div>
-      ) : viewMode === 'esri' ? (
+      {viewMode === 'esri' ? (
         <EsriPage />
       ) : (
         <CentralBankPage />
