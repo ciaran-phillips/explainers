@@ -19,5 +19,9 @@
       "Bash(grep:*)",
       "Bash(npm run generate-data:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "notion"
+  ],
+  "enableAllProjectMcpServers": true
 }
