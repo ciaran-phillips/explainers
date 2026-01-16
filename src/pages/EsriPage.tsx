@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { DemandChart } from '@/components/DemandChart'
 import { SummaryStats } from '@/components/SummaryStats'
 import { ComparisonTable } from '@/components/ComparisonTable'
-import { BreakdownChart } from '@/components/BreakdownChart'
 import { useResizeObserver } from '@/hooks/useResizeObserver'
 import { dataLoaders, type ScenariosFile } from '@/lib/dataLoader'
 import {
@@ -205,14 +204,6 @@ export function EsriPage() {
             allScenarios={allScenarios}
           />
         </div>
-      </div>
-
-      <div className="card" style={{ background: 'var(--theme-background-alt)', padding: '1.5rem', borderRadius: '8px', marginTop: '1.5rem' }}>
-        <h3 style={{ marginTop: 0 }}>Demand Breakdown by Component</h3>
-        <BreakdownChart
-          selectedScenario={selectedTimeSeries}
-          width={width - 48}
-        />
       </div>
 
       <hr style={{ margin: '2rem 0' }} />

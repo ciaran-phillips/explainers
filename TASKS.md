@@ -92,14 +92,6 @@ HTML table showing:
 - Row: Maximum across all scenarios
 - Row: Average across all scenarios
 
-### 2.5 Create component breakdown chart
-**File:** `src/components/breakdownChart.js`
-
-Stacked area or bar chart showing:
-- New household formation component
-- Replacement/obsolescence component
-- For the selected scenario over time
-
 ---
 
 ## Phase 3: Main Page Assembly
