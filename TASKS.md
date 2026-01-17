@@ -74,25 +74,6 @@ Observable Plot chart with:
 - Horizontal reference lines for period averages
 - Proper axis labels and formatting (thousands)
 
-### 2.3 Create summary statistics card
-**File:** `src/components/summaryStats.js`
-
-Display card showing:
-- 2023-2030 average for selected scenario
-- 2030-2040 average for selected scenario
-- Range across all scenarios (min-max)
-- Format numbers with thousands separator
-
-### 2.4 Create scenario comparison table
-**File:** `src/components/comparisonTable.js`
-
-HTML table showing:
-- Row: Your scenario | 2023-2030 avg | 2030-2040 avg | Total (18 years)
-- Row: Minimum across all scenarios
-- Row: Maximum across all scenarios
-- Row: Average across all scenarios
-
----
 
 ## Phase 3: Main Page Assembly
 

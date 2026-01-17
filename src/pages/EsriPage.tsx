@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { DemandChart } from '@/components/DemandChart'
-import { SummaryStats } from '@/components/SummaryStats'
-import { ComparisonTable } from '@/components/ComparisonTable'
 import { useResizeObserver } from '@/hooks/useResizeObserver'
 import { dataLoaders, type ScenariosFile } from '@/lib/dataLoader'
 import {
@@ -187,21 +185,6 @@ export function EsriPage() {
             scale={1000}
             yearDomain={[2023, 2040]}
             periodBreak={2030}
-          />
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
-        <div className="card" style={{ background: 'var(--theme-background-alt)', padding: '1.5rem', borderRadius: '8px' }}>
-          <SummaryStats
-            selectedScenario={selectedTimeSeries}
-            allScenarios={allScenarios}
-          />
-        </div>
-        <div className="card" style={{ background: 'var(--theme-background-alt)', padding: '1.5rem', borderRadius: '8px' }}>
-          <ComparisonTable
-            selectedScenario={selectedTimeSeries}
-            allScenarios={allScenarios}
           />
         </div>
       </div>

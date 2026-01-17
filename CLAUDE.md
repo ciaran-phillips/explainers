@@ -42,9 +42,6 @@ housing-need/
     │   ├── calculations.ts     # ESRI calculation functions
     │   ├── cohort-calculations.ts  # Cohort-based calculations
     │   ├── DemandChart.tsx     # Main demand chart
-    │   ├── BreakdownChart.tsx  # Stacked area breakdown
-    │   ├── SummaryStats.tsx    # Summary statistics
-    │   └── ComparisonTable.tsx # Scenario comparison
     ├── data/
     │   ├── population-types.ts # Population type definitions
     │   ├── headship-types.ts   # Headship rate types
