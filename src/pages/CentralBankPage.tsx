@@ -210,9 +210,6 @@ export function CentralBankPage() {
               formatLabel={opt => opt.label}
             />
           </div>
-
-          <h4 style={{ marginTop: '1.5rem' }}>Projected Population (15+)</h4>
-          <PopulationChart data={populationByYear} width={280} />
         </div>
 
         <div className="card" style={{ background: 'var(--theme-background-alt)', padding: '1.5rem', borderRadius: '8px' }}>

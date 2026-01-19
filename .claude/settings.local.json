@@ -17,11 +17,15 @@
       "Bash(npx tsc:*)",
       "Bash(npx tsx:*)",
       "Bash(grep:*)",
-      "Bash(npm run generate-data:*)"
+      "Bash(npm run generate-data:*)",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-create-database",
+      "mcp__notion__notion-create-pages"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "notion"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

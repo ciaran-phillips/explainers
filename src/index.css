@@ -204,6 +204,10 @@ p {
   color: var(--theme-foreground-muted);
 }
 
+h1, h2, h3, p {
+  max-width: 36em;
+}
+
 /* Projection Stats (Projections Page) */
 
 .projection-stats-header {

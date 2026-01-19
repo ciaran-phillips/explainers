@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { EsriPage } from './EsriPage'
 import { CentralBankPage } from './CentralBankPage'
+import { Intro } from '@/components/Intro'
 
 type ViewMode = 'esri' | 'central-bank'
 
@@ -9,10 +10,16 @@ export function CombinedPage() {
 
   return (
     <div>
-      <h1>Housing Need Projections</h1>
-      <p>
-        Compare housing demand projections from different models.
-      </p>
+      <div className="mb-6">
+        <h1>Understanding Ireland's Housing Numbers</h1>
+        <h3>
+          <em>Explore the data behind the headlines — and build your own projections.</em>
+        </h3>
+        <sub>(scroll to the bottom for the full interactive chart)</sub>
+      </div>
+      <Intro />
+
+      <hr className="section-divider" />
 
       <div className="controls-grid" style={{ marginBottom: '2rem' }}>
         <div className="radio-group">
