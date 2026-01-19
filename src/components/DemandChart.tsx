@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useMemo } from 'react'
 import * as Plot from '@observablehq/plot'
+import { useAnimatedSeries } from '@/hooks/useAnimatedSeries'
 
 interface TimeSeriesPoint {
   year: number
@@ -43,10 +44,20 @@ export function DemandChart({
   const [startYear, endYear] = yearDomain || [Math.min(...years), Math.max(...years)]
   const midYear = periodBreak || Math.round((startYear + endYear) / 2)
 
-  const selectedData = selectedScenario.map(d => ({
+  // Scale data BEFORE animation so both models use same units
+  const scaledScenario = selectedScenario.map(d => ({
     year: d.year,
     demand: d.demand * scale
   }))
+
+  // Animate transitions between series (already in display units)
+  const animatedScenario = useAnimatedSeries(
+    scaledScenario,
+    [startYear, endYear],
+    100
+  )
+
+  const selectedData = animatedScenario
 
   const rangeData = scenarioRange.map(d => ({
     year: d.year,
@@ -54,8 +65,8 @@ export function DemandChart({
     max: d.max * scale
   }))
 
-  const avgFirstPeriod = calculatePeriodAverage(selectedScenario, startYear, midYear) * scale
-  const avgSecondPeriod = calculatePeriodAverage(selectedScenario, midYear + 1, endYear) * scale
+  const avgFirstPeriod = calculatePeriodAverage(animatedScenario, startYear, midYear)
+  const avgSecondPeriod = calculatePeriodAverage(animatedScenario, midYear + 1, endYear)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -151,7 +162,7 @@ export function DemandChart({
     containerRef.current.appendChild(plot)
 
     return () => plot.remove()
-  }, [selectedScenario, scenarioRange, width, startYear, endYear, midYear, scale, yDomain, avgFirstPeriod, avgSecondPeriod, selectedData, rangeData])
+  }, [animatedScenario, scenarioRange, width, startYear, endYear, midYear, scale, yDomain, avgFirstPeriod, avgSecondPeriod, selectedData, rangeData])
 
   return <div ref={containerRef} className="demand-chart" />
 }

@@ -74,9 +74,9 @@ export function computeEsriTimeSeries(
       obsolescence: obsolescenceOptions
     },
     chartConfig: {
-      yearDomain: [2023, 2050],
+      yearDomain: [2023, 2040],
       yDomain: [0, 80000],
-      periodBreak: 2035,
+      periodBreak: 2030,
       scale: 1000
     }
   }
