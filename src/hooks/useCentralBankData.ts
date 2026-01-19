@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react'
 import { dataLoaders } from '@/lib/dataLoader'
 import type { PopulationProjections, HeadshipProjections } from '@/components/cohort-calculations'
+import { useAsyncData } from './useAsyncData'
+
+interface CentralBankData {
+  populationByCohort: PopulationProjections
+  headshipRates: HeadshipProjections
+}
 
 export interface CentralBankDataResult {
   loading: boolean
@@ -9,29 +14,21 @@ export interface CentralBankDataResult {
   headshipRates: HeadshipProjections | null
 }
 
+async function loadCentralBankData(): Promise<CentralBankData> {
+  const [populationByCohort, headshipRates] = await Promise.all([
+    dataLoaders.cbPopulation(),
+    dataLoaders.cbHeadship()
+  ])
+  return { populationByCohort, headshipRates }
+}
+
 export function useCentralBankData(): CentralBankDataResult {
-  const [populationByCohort, setPopulationByCohort] = useState<PopulationProjections | null>(null)
-  const [headshipRates, setHeadshipRates] = useState<HeadshipProjections | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const { loading, error, data } = useAsyncData(loadCentralBankData)
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [pop, head] = await Promise.all([
-          dataLoaders.cbPopulation(),
-          dataLoaders.cbHeadship()
-        ])
-        setPopulationByCohort(pop)
-        setHeadshipRates(head)
-      } catch (e) {
-        setError(e instanceof Error ? e : new Error('Failed to load Central Bank data'))
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [])
-
-  return { loading, error, populationByCohort, headshipRates }
+  return {
+    loading,
+    error,
+    populationByCohort: data?.populationByCohort ?? null,
+    headshipRates: data?.headshipRates ?? null
+  }
 }
