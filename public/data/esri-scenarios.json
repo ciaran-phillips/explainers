@@ -48,12 +48,12 @@
   },
   "obsolescenceScenarios": {
     "low": {
-      "label": "Low (0.25%)",
+      "label": "0.25%",
       "description": "Lower bound estimate",
       "rate": 0.0025
     },
     "high": {
-      "label": "High (0.50%)",
+      "label": "0.50%",
       "description": "Higher bound estimate",
       "rate": 0.0050
     }

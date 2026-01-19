@@ -17,6 +17,7 @@ interface DemandChartProps {
   scenarioRange: RangePoint[]
   width?: number
   yearDomain?: [number, number]
+  yDomain?: [number, number]
   scale?: number
   periodBreak?: number
 }
@@ -32,6 +33,7 @@ export function DemandChart({
   scenarioRange,
   width = 800,
   yearDomain,
+  yDomain,
   scale = 1,
   periodBreak
 }: DemandChartProps) {
@@ -77,7 +79,7 @@ export function DemandChart({
         label: 'Annual Housing Demand (units)',
         grid: true,
         tickFormat: (d: number) => d.toLocaleString(),
-        domain: [0, (rangeData.length > 0
+        domain: yDomain || [0, (rangeData.length > 0
           ? Math.max(...rangeData.map(d => d.max))
           : Math.max(...selectedData.map(d => d.demand))) * 1.1]
       },
@@ -149,7 +151,7 @@ export function DemandChart({
     containerRef.current.appendChild(plot)
 
     return () => plot.remove()
-  }, [selectedScenario, scenarioRange, width, startYear, endYear, midYear, scale, avgFirstPeriod, avgSecondPeriod, selectedData, rangeData])
+  }, [selectedScenario, scenarioRange, width, startYear, endYear, midYear, scale, yDomain, avgFirstPeriod, avgSecondPeriod, selectedData, rangeData])
 
   return <div ref={containerRef} className="demand-chart" />
 }

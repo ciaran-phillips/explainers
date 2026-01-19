@@ -22,6 +22,7 @@ export interface EsriTimeSeriesResult {
   filterOptions: EsriFilterOptions
   chartConfig: {
     yearDomain: [number, number]
+    yDomain: [number, number]
     periodBreak: number
     scale: number
   }
@@ -73,8 +74,9 @@ export function computeEsriTimeSeries(
       obsolescence: obsolescenceOptions
     },
     chartConfig: {
-      yearDomain: [2023, 2040],
-      periodBreak: 2030,
+      yearDomain: [2023, 2050],
+      yDomain: [0, 80000],
+      periodBreak: 2035,
       scale: 1000
     }
   }

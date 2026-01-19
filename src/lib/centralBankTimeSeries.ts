@@ -20,6 +20,7 @@ export interface CentralBankTimeSeriesResult {
   scenarioRange: CentralBankRangePoint[]
   chartConfig: {
     yearDomain: [number, number]
+    yDomain: [number, number]
     periodBreak: number
     scale: number
   }
@@ -51,6 +52,7 @@ export function computeCentralBankTimeSeries(
     scenarioRange,
     chartConfig: {
       yearDomain: [2023, 2050],
+      yDomain: [0, 80000],
       periodBreak: 2035,
       scale: 1
     }

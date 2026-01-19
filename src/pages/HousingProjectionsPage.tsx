@@ -145,6 +145,7 @@ export function HousingProjectionsPage() {
                 width={Math.max(400, width - 380)}
                 scale={activeData.chartConfig.scale}
                 yearDomain={activeData.chartConfig.yearDomain}
+                yDomain={activeData.chartConfig.yDomain}
                 periodBreak={activeData.chartConfig.periodBreak}
               />
             </div>

@@ -9,9 +9,9 @@ interface CentralBankFiltersProps {
 }
 
 const migrationOptions: RadioOption<'M1' | 'M2' | 'M3'>[] = [
-  { value: 'M3', label: 'Low Migration' },
   { value: 'M2', label: 'Baseline Migration' },
-  { value: 'M1', label: 'High Migration' }
+  { value: 'M1', label: 'High Migration' },
+  { value: 'M3', label: 'Low Migration' }
 ]
 
 const headshipOptions: RadioOption<'current' | 'gradual' | 'fast'>[] = [
@@ -37,7 +37,7 @@ export function CentralBankFilters({
       <h3 style={{ marginTop: 0 }}>Scenario Selection</h3>
 
       <RadioGroup
-        label="Migration Scenario"
+        label="Migration"
         options={migrationOptions}
         value={filters.migration}
         onChange={onMigrationChange}
