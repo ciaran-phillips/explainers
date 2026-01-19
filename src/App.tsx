@@ -1,7 +1,5 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import { EsriPage } from './pages/EsriPage'
-import { CentralBankPage } from './pages/CentralBankPage'
-import { CombinedPage } from './pages/CombinedPage'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HousingProjectionsPage } from './pages/HousingProjectionsPage'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -16,10 +14,8 @@ export function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<CombinedPage />} />
-          <Route path="/combined" element={<CombinedPage />} />
-          <Route path="/esri" element={<EsriPage />} />
-          <Route path="/central-bank" element={<CentralBankPage />} />
+          <Route path="/" element={<HousingProjectionsPage />} />
+          <Route path="/combined" element={<HousingProjectionsPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>
